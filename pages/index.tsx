@@ -1,27 +1,51 @@
 import { Inter } from 'next/font/google';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import WavyBackground from '@/components/WavyBackground';
-import dynamic from 'next/dynamic';
-import { FaTwitter, FaDiscord, FaBook, FaChevronDown } from 'react-icons/fa';
+import Footer from '@/components/Footer';
+import { FaTwitter } from 'react-icons/fa';
 import { useState, useEffect } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { Environment, OrbitControls } from '@react-three/drei';
-import { EffectComposer, Bloom } from '@react-three/postprocessing';
-import { BitcoinModel } from '@/components/BitcoinModel';
-import * as THREE from 'three';
+import ConfettiExplosion from 'react-confetti-explosion';
 
 const inter = Inter({ subsets: ['latin'] });
 
-// Dynamically import WaveBackground with no SSR
-const WaveBackground = dynamic(() => import('@/components/WaveBackground'), { ssr: false });
+// Array of image paths - you'll need to add these images to your public folder
+const carouselImages = [
+  '/carousel/1.png',
+  '/carousel/2.png',
+  '/carousel/3.png',
+  '/carousel/4.png',
+  '/carousel/5.png',
+  '/carousel/6.png',
+  '/carousel/7.png',
+  '/carousel/8.png',
+  '/carousel/9.png',
+  '/carousel/10.png',
+  '/carousel/11.png',
+  '/carousel/12.png',
+  '/carousel/13.png'
+  // Add more images as needed
+];
+
+// Update the gradient animation constant
+const gradientAnimation = {
+  backgroundSize: '200% 200%',
+  animation: 'gradient 2s linear infinite'
+};
 
 export default function Home() {
   const [btcPrice, setBtcPrice] = useState<number | null>(null);
   const [mempoolFee, setMempoolFee] = useState<number | null>(null);
-  const [showArrow, setShowArrow] = useState(true);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [mintedCount] = useState(0); // Replace with actual minted count logic
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const totalSupply = 2000;
+  const mintProgress = (mintedCount / totalSupply) * 100;
+  const [isMinting, setIsMinting] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [mintedImageIndex, setMintedImageIndex] = useState(0);
 
   useEffect(() => {
     const fetchBtcPrice = async () => {
@@ -38,7 +62,7 @@ export default function Home() {
       try {
         const response = await fetch('https://mempool.space/api/v1/fees/recommended');
         const data = await response.json();
-        setMempoolFee(data.halfHourFee); // Using half hour fee as a middle ground
+        setMempoolFee(data.halfHourFee);
       } catch (error) {
         console.error('Error fetching mempool fees:', error);
       }
@@ -47,26 +71,33 @@ export default function Home() {
     fetchBtcPrice();
     fetchMempoolFees();
 
-    const interval = setInterval(() => {
+    const priceInterval = setInterval(() => {
       fetchBtcPrice();
       fetchMempoolFees();
     }, 60000);
 
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setShowArrow(false);
-      } else {
-        setShowArrow(true);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
+    // Image carousel interval
+    const imageInterval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === carouselImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 5000);
 
     return () => {
-      clearInterval(interval);
-      window.removeEventListener('scroll', handleScroll);
+      clearInterval(priceInterval);
+      clearInterval(imageInterval);
     };
   }, []);
+
+  const handleMint = async () => {
+    setIsMinting(true);
+    // Simulate minting delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setIsMinting(false);
+    // Set random image from carousel for success modal
+    setMintedImageIndex(Math.floor(Math.random() * carouselImages.length));
+    setShowSuccessModal(true);
+  };
 
   return (
     <div className="overflow-hidden">
@@ -115,624 +146,266 @@ export default function Home() {
                 >
                   <Link href="/comingsoon">
                     <motion.button
-                      className="px-6 py-2 text-base font-semibold text-white bg-gradient-to-r from-orange-500 to-red-500 rounded-lg shadow-lg cursor-pointer"
+                      className="relative px-6 py-2 text-base font-semibold text-white rounded-lg"
                       whileHover={{ 
-                        scale: 1.05,
-                        transition: { duration: 0.3 },
-                        filter: 'brightness(1.1)'
+                        scale: 1.02,
+                        transition: { duration: 0.2 }
                       }}
-                      whileTap={{ scale: 0.95 }}
+                      whileTap={{ scale: 0.98 }}
                     >
-                      Launch dApp
+                      <div 
+                        className="absolute inset-0 rounded-lg bg-gradient-to-r from-[#FFA200] via-[#FF3000] to-[#FFA200]"
+                        style={gradientAnimation}
+                      />
+                      <div className="absolute inset-[1px] rounded-lg bg-black/95 backdrop-blur-sm" />
+                      <span className="relative z-10">Connect Wallet</span>
                     </motion.button>
                   </Link>
                 </motion.div>
               </div>
             </motion.header>
 
-            {/* Content */}
-            <div className="relative z-10">
-              {/* Hero Section */}
-              <section className="min-h-screen w-full flex items-center justify-center px-8">
-                <div className="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                  {/* Left Column - Header */}
-                  <motion.div
-                    className="flex flex-col space-y-4 lg:pr-0"
-                    initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                  >
-                    <div className="text-center lg:text-right">
-                      <motion.h1
-                        initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                        className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight"
-                      >
-                        The first Hybrid<br />
-                        <span 
-                          className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFAA00] via-[#FFD700] to-[#FFAA00]"
-                          style={{ textShadow: "rgba(255, 170, 0, 0.5) 0px 0px 10px", lineHeight: "1.2", paddingBottom: "0.2em" }}
+            {/* Centered Module Container */}
+            <div className="w-full min-h-screen flex items-center justify-center px-4">
+              <div className="relative">
+                <motion.div 
+                  className="w-full max-w-4xl bg-black/60 backdrop-blur-md rounded-2xl overflow-hidden shadow-2xl border border-white/10"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className="flex flex-col md:flex-row">
+                    {/* Image Carousel */}
+                    <div className="w-full md:w-1/2 relative aspect-square cursor-pointer" onClick={() => setIsImageModalOpen(true)}>
+                      <AnimatePresence mode='wait'>
+                        <motion.div
+                          key={currentImageIndex}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.5 }}
+                          className="absolute inset-0"
                         >
-                          DeFi Platform
-                        </span><br />
-                        on Bitcoin
-                      </motion.h1>
+                          <Image
+                            src={carouselImages[currentImageIndex]}
+                            alt="Inscription Preview"
+                            fill
+                            className="object-cover hover:scale-105 transition-transform duration-300"
+                          />
+                        </motion.div>
+                      </AnimatePresence>
                     </div>
-                  </motion.div>
 
-                  {/* Right Column - 3D Object */}
+                    {/* Minting Info */}
+                    <div className="w-full md:w-1/2 p-8 flex flex-col justify-between">
+                      <div>
+                        <h2 className="text-2xl font-bold text-white mb-6">CHIMERA GENESIS</h2>
+                        <p className="text-gray-300 text-sm leading-relaxed mb-8">
+                          CHIMERA GENESIS is a Hybrid Inscription collection of 2,000 Digital Artifacts on Bitcoin (testnet4). Each inscription can dynamically change states and unlock 100,000 CHIMERA•GENESIS Rune tokens via our trustless fractionalization protocol, you can swap for these tokens at any time (and vice versa).
+                        </p>
+                        <div className="space-y-4">
+                          <div>
+                            <div className="flex justify-between text-sm text-gray-300 mb-2">
+                              <span>Progress</span>
+                              <span>{mintedCount}/{totalSupply}</span>
+                            </div>
+                            <div className="w-full h-2 bg-black rounded-full overflow-hidden">
+                              <motion.div
+                                className="h-full bg-gradient-to-r from-orange-500 to-red-500"
+                                initial={{ width: 0 }}
+                                animate={{ width: `${mintProgress}%` }}
+                                transition={{ duration: 0.5 }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <motion.button
+                        onClick={handleMint}
+                        className="relative w-full mt-8 px-6 py-3 text-lg font-semibold text-white rounded-lg"
+                        whileHover={{ 
+                          scale: 1.02,
+                          transition: { duration: 0.2 }
+                        }}
+                        whileTap={{ scale: 0.98 }}
+                        disabled={isMinting}
+                      >
+                        <div 
+                          className="absolute inset-0 rounded-lg bg-gradient-to-r from-[#FFA200] via-[#FF3000] to-[#FFA200]"
+                          style={gradientAnimation}
+                        />
+                        <div className="absolute inset-[1px] rounded-lg bg-black/95 backdrop-blur-sm" />
+                        <span className="relative z-10 flex items-center justify-center">
+                          {isMinting ? (
+                            <>
+                              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Minting...
+                            </>
+                          ) : (
+                            'Mint Inscription'
+                          )}
+                        </span>
+                      </motion.button>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Next Button - Positioned relative to the modal */}
+                <motion.div
+                  className="absolute left-1/2 transform -translate-x-1/2 mt-8"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  <Link href="/hybridswap">
+                    <motion.span
+                      className="text-white/80 hover:text-white text-lg font-medium cursor-pointer inline-block"
+                      initial={{ y: 0 }}
+                      animate={{ 
+                        y: [-4, 4, -4],
+                        scale: [1, 1.1, 1],
+                        opacity: [0.8, 1, 0.8]
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                        ease: "easeInOut"
+                      }}
+                    >
+                      Next →
+                    </motion.span>
+                  </Link>
+                </motion.div>
+              </div>
+            </div>
+
+            {/* Success Modal */}
+            <AnimatePresence>
+              {showSuccessModal && (
+                <>
+                  <div className="fixed inset-0 flex items-center justify-center z-[100]">
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                      onClick={() => setShowSuccessModal(false)}
+                    />
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                      className="relative bg-black/90 rounded-2xl p-8 max-w-lg w-full mx-4 border border-white/10 shadow-2xl z-[102]"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="text-center">
+                        <h3 className="text-2xl font-bold text-white mb-6">Congratulations!</h3>
+                        <div className="relative w-48 h-48 mx-auto mb-6">
+                          <Image
+                            src={carouselImages[mintedImageIndex]}
+                            alt="Minted Inscription"
+                            fill
+                            className="object-cover rounded-lg"
+                          />
+                        </div>
+                        <p className="text-gray-300 mb-4">You successfully minted:</p>
+                        <p className="font-mono text-white bg-black/50 rounded-lg p-3 mb-8 break-all">
+                          Inscription ID: {`${Array(64).fill('x').join('')}`}
+                        </p>
+                        <motion.button
+                          onClick={() => setShowSuccessModal(false)}
+                          className="text-white/80 hover:text-white transition-colors"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Close
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  </div>
+                  {/* Confetti above everything */}
+                  <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-[999999]">
+                    <ConfettiExplosion 
+                      force={0.8}
+                      duration={3000}
+                      particleCount={100}
+                      width={1600}
+                    />
+                  </div>
+                </>
+              )}
+            </AnimatePresence>
+
+            {/* Image Modal */}
+            <AnimatePresence>
+              {isImageModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center z-[100]">
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 1, delay: 0.8 }}
-                    className="relative w-full h-[40vh]"
-                    style={{ 
-                      touchAction: 'none',
-                      cursor: 'grab',
-                      zIndex: 10,
-                      position: 'relative'
-                    }}
-                  >
-                    <div className="absolute inset-0" style={{ pointerEvents: 'auto' }}>
-                      <Canvas
-                        camera={{ position: [0, 0, 4], fov: 45 }}
-                        style={{
-                          width: '100%',
-                          height: '100%'
-                        }}
-                        gl={{
-                          alpha: true,
-                          antialias: true,
-                          preserveDrawingBuffer: true,
-                          toneMapping: THREE.ACESFilmicToneMapping,
-                          toneMappingExposure: 0.25
-                        }}
-                      >
-                        {/* Lighting setup for better highlights */}
-                        <ambientLight intensity={0.008} />
-                        <directionalLight
-                          position={[5, 5, 5]}
-                          intensity={0.04}
-                          castShadow
-                        />
-                        
-                        {/* High quality environment map with increased contrast */}
-                        <Environment
-                          preset="studio"
-                          background={false}
-                          resolution={256}
-                        />
-
-                        <BitcoinModel />
-                        <OrbitControls
-                          makeDefault
-                          enableZoom={false}
-                          enablePan={false}
-                          rotateSpeed={0.7}
-                          dampingFactor={0.05}
-                          enableDamping
-                        />
-                        
-                        <EffectComposer>
-                          <Bloom 
-                            intensity={0.5}
-                            luminanceThreshold={0.7}
-                            luminanceSmoothing={0.3}
-                            mipmapBlur
-                            radius={0.4}
-                          />
-                        </EffectComposer>
-                      </Canvas>
-                    </div>
-                  </motion.div>
-                </div>
-
-                {/* Blinking Down Arrow */}
-                {showArrow && (
-                  <motion.div 
-                    className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-40"
-                    initial={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    animate={{ y: [0, 10, 0] }}
-                    transition={{ 
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    <FaChevronDown className="text-white/60 text-2xl" style={{ strokeWidth: 1 }} />
-                  </motion.div>
-                )}
-              </section>
-
-              <section className="w-full py-24 px-8 relative">
-                <div className="max-w-7xl mx-auto">
+                    className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                    onClick={() => setIsImageModalOpen(false)}
+                  />
                   <motion.div
-                    initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    viewport={{ once: true, margin: "100px" }}
-                    transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                    className="text-center mb-24 pt-48"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                    className="relative w-[90vw] h-[90vh] max-w-6xl max-h-[90vh] z-[101]"
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    <motion.h2
-                      initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                      viewport={{ once: true, margin: "100px" }}
-                      transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                      className="text-5xl md:text-6xl lg:text-7xl mb-24 font-bold"
-                    >
-                      <span 
-                        className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFAA00] via-[#FFD700] to-[#FFAA00]"
-                        style={{ textShadow: "rgba(255, 170, 0, 0.5) 0px 0px 10px", lineHeight: "1.2" }}
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={carouselImages[currentImageIndex]}
+                        alt="Enlarged Inscription Preview"
+                        fill
+                        className="object-contain"
+                        priority
+                      />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsImageModalOpen(false);
+                        }}
+                        className="absolute top-4 right-4 text-white/80 hover:text-white bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors duration-200 z-[102]"
                       >
-                        What is Hybrid DeFi?
-                      </span>
-                    </motion.h2>
-                    <motion.p
-                      initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                      viewport={{ once: true, margin: "100px" }}
-                      transition={{ duration: 1.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                      className="text-xl md:text-2xl lg:text-3xl text-gray-300 max-w-6xl mx-auto font-semibold leading-relaxed mb-4"
-                    >
-                      Hybrid DeFi unifies the entire onchain ecosystem into one seamless trading experience, including both non-fungible and fungible assets.
-                    </motion.p>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
                   </motion.div>
-
-                  {/* Core Features Section Header */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    viewport={{ once: true, margin: "100px" }}
-                    transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                    className="text-center mb-24 pt-48"
-                  >
-                    <motion.h2
-                      initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                      viewport={{ once: true, margin: "100px" }}
-                      transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                      className="text-5xl md:text-6xl font-bold mb-2"
-                    >
-                      <span 
-                        className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFAA00] via-[#FFD700] to-[#FFAA00]"
-                        style={{ textShadow: "rgba(255, 170, 0, 0.5) 0px 0px 10px", lineHeight: "1.2" }}
-                      >
-                        Core Features
-                      </span>
-                    </motion.h2>
-                  </motion.div>
-
-                  {/* Core Features Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-24">
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-20%" }}
-                      transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-                      className="bg-black/30 backdrop-blur-sm rounded-xl p-10 border border-white/10 text-center"
-                    >
-                      <div className="text-orange-500 text-4xl mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <motion.h3
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: "-20%" }}
-                        transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-                        className="text-2xl font-bold"
-                      >
-                        Tokenized Inscriptions
-                      </motion.h3>
-                    </motion.div>
-
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-20%" }}
-                      transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
-                      className="bg-black/30 backdrop-blur-sm rounded-xl p-10 border border-white/10 text-center"
-                    >
-                      <div className="text-orange-500 text-4xl mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                        </svg>
-                      </div>
-                      <motion.h3
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: "-20%" }}
-                        transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
-                        className="text-2xl font-bold"
-                      >
-                        BTC10 Index Fund
-                      </motion.h3>
-                    </motion.div>
-
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-20%" }}
-                      transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
-                      className="bg-black/30 backdrop-blur-sm rounded-xl p-10 border border-white/10 text-center"
-                    >
-                      <div className="text-orange-500 text-4xl mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                      <motion.h3
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: "-20%" }}
-                        transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
-                        className="text-2xl font-bold"
-                      >
-                        LP to Earn
-                      </motion.h3>
-                    </motion.div>
-                  </div>
-
-                  {/* Detailed Sections */}
-                  
-                  {/* Tokenized Inscriptions Section */}
-                  <section className="w-full py-24 px-8 relative">
-                    <div className="max-w-7xl mx-auto">
-                      <motion.div
-                        initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                        whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                        viewport={{ once: true, margin: "100px" }}
-                        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                        className="text-center mb-24 pt-48"
-                      >
-                        <motion.h2
-                          initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                          viewport={{ once: true, margin: "100px" }}
-                          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                          className="text-4xl md:text-5xl font-bold mb-12"
-                        >
-                          <span 
-                            className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFAA00] via-[#FFD700] to-[#FFAA00]"
-                            style={{ textShadow: "rgba(255, 170, 0, 0.5) 0px 0px 10px", lineHeight: "1.2" }}
-                          >
-                            Tokenized Inscriptions
-                          </span>
-                        </motion.h2>
-                      </motion.div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        <motion.div
-                          initial={{ opacity: 0, x: -20 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          viewport={{ once: true, margin: "-20%" }}
-                          transition={{ duration: 1, delay: 0.1, ease: "easeOut" }}
-                          className="relative w-full h-[500px] flex items-center justify-center"
-                        >
-                          {/* Left image */}
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.8, rotate: -15 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 1, delay: 0.2 }}
-                            className="absolute w-[220px] h-[220px] left-0 transform -translate-x-[80%] -translate-y-[20%] -rotate-12 shadow-2xl rounded-2xl overflow-hidden"
-                            style={{ zIndex: 1 }}
-                          >
-                            <Image
-                              src="/bp.png"
-                              alt="Bitcoin Puppets"
-                              fill
-                              style={{ objectFit: 'cover' }}
-                              className="rounded-2xl"
-                            />
-                          </motion.div>
-
-                          {/* Center image */}
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 1, delay: 0.3 }}
-                            className="absolute w-[240px] h-[240px] transform translate-y-[40%] shadow-2xl rounded-2xl overflow-hidden"
-                            style={{ zIndex: 3 }}
-                          >
-                            <Image
-                              src="/nm.webp"
-                              alt="NodeMonkes"
-                              fill
-                              style={{ objectFit: 'cover' }}
-                              className="rounded-2xl"
-                            />
-                          </motion.div>
-
-                          {/* Right image */}
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.8, rotate: 15 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 1, delay: 0.4 }}
-                            className="absolute w-[220px] h-[220px] right-0 transform translate-x-[8%] -translate-y-[20%] rotate-12 shadow-2xl rounded-2xl overflow-hidden"
-                            style={{ zIndex: 2 }}
-                          >
-                            <Image
-                              src="/qc.png"
-                              alt="Quantum Cats"
-                              fill
-                              style={{ objectFit: 'cover' }}
-                              className="rounded-2xl"
-                            />
-                          </motion.div>
-                        </motion.div>
-
-                        <motion.div
-                          initial={{ opacity: 0, x: 20 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          viewport={{ once: true, margin: "-20%" }}
-                          transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-                          className="flex flex-col justify-center"
-                        >
-                          <h3 className="text-3xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">
-                            Making Blue Chips Accessible
-                          </h3>
-                          <p className="text-xl text-gray-300 leading-relaxed mb-8">
-                            Our hybrid inscription protocol fractionalizes the top Ordinal collections, enabling instant trading of digital artifacts through floor index tokens.
-                          </p>
-                          <ul className="space-y-4 text-gray-300">
-                            <li className="flex items-center">
-                              <svg className="w-6 h-6 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                              </svg>
-                              Trustless Fractionalization
-                            </li>
-                            <li className="flex items-center">
-                              <svg className="w-6 h-6 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                              </svg>
-                              Instant Trading via Runes AMM DEX
-                            </li>
-                            <li className="flex items-center">
-                              <svg className="w-6 h-6 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                              </svg>
-                              Provide Liquidity to earn BTC Yield
-                            </li>
-                          </ul>
-                        </motion.div>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* BTC10 Index Fund Section */}
-                  <section className="w-full py-24 px-8 relative">
-                    <div className="max-w-7xl mx-auto">
-                      <motion.div
-                        initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                        whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                        viewport={{ once: true, margin: "100px" }}
-                        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                        className="text-center mb-24 pt-48"
-                      >
-                        <motion.h2
-                          initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                          viewport={{ once: true, margin: "100px" }}
-                          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                          className="text-4xl md:text-5xl font-bold mb-12"
-                        >
-                          <span 
-                            className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFAA00] via-[#FFD700] to-[#FFAA00]"
-                            style={{ textShadow: "rgba(255, 170, 0, 0.5) 0px 0px 10px", lineHeight: "1.2" }}
-                          >
-                            BTC10 Index Fund
-                          </span>
-                        </motion.h2>
-                      </motion.div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true, margin: "-20%" }}
-                          transition={{ duration: 1, delay: 0.1, ease: "easeOut" }}
-                          className="bg-black/30 backdrop-blur-sm rounded-xl p-10 border border-white/10"
-                        >
-                          <div className="text-orange-500 text-4xl mb-4">01</div>
-                          <motion.h3
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, margin: "-20%" }}
-                            transition={{ duration: 1, delay: 0.1, ease: "easeOut" }}
-                            className="text-xl font-bold mb-4"
-                          >
-                            Trading Made Simple
-                          </motion.h3>
-                          <p className="text-gray-300">
-                            We&apos;ve removed the friction and complexity of trading BTC assets, making it effortless to invest in the BTC Layer 1 ecosystem.
-                          </p>
-                        </motion.div>
-
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true, margin: "-20%" }}
-                          transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-                          className="bg-black/30 backdrop-blur-sm rounded-xl p-10 border border-white/10"
-                        >
-                          <div className="text-orange-500 text-4xl mb-4">02</div>
-                          <motion.h3
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, margin: "-20%" }}
-                            transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-                            className="text-xl font-bold mb-4"
-                          >
-                            Back by Blue Chip Assets
-                          </motion.h3>
-                          <p className="text-gray-300">
-                          The index fund is backed by a combination of top 10 BTC assets across Ordinals, Runes & BRC20.
-                          </p>
-                        </motion.div>
-
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true, margin: "-20%" }}
-                          transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
-                          className="bg-black/30 backdrop-blur-sm rounded-xl p-10 border border-white/10"
-                        >
-                          <div className="text-orange-500 text-4xl mb-4">03</div>
-                          <motion.h3
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, margin: "-20%" }}
-                            transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
-                            className="text-xl font-bold mb-4"
-                          >
-                            AI Powered Portfolio Management
-                          </motion.h3>
-                          <p className="text-gray-300">
-                          Our custom ai agent will rebalance the Index Fund autonomously, ensuring optimal weighting of assets to reduce risk and volatility.
-                          </p>
-                        </motion.div>
-
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true, margin: "-20%" }}
-                          transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
-                          className="bg-black/30 backdrop-blur-sm rounded-xl p-10 border border-white/10"
-                        >
-                          <div className="text-orange-500 text-4xl mb-4">04</div>
-                          <motion.h3
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, margin: "-20%" }}
-                            transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
-                            className="text-xl font-bold mb-4"
-                          >
-                            S&P500 of BTC
-                          </motion.h3>
-                          <p className="text-gray-300">
-                          As the ecosystem grows our index will expand to include the top 100 BTC assets, positioning ourselves as the S&P500 of Bitcoin.
-                          </p>
-                        </motion.div>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Collaborators and Partners Section */}
-                  <section className="w-full py-24 px-8 relative">
-                    <div className="max-w-7xl mx-auto">
-                      <motion.div
-                        initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                        whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                        viewport={{ once: true, margin: "100px" }}
-                        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                        className="text-center mb-24"
-                      >
-                        <motion.h2
-                          initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                          viewport={{ once: true, margin: "100px" }}
-                          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                          className="text-4xl md:text-5xl font-bold mb-12"
-                        >
-                          <span 
-                            className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFAA00] via-[#FFD700] to-[#FFAA00]"
-                            style={{ textShadow: "rgba(255, 170, 0, 0.5) 0px 0px 10px", lineHeight: "1.2" }}
-                          >
-                            Collaborators & Partners
-                          </span>
-                        </motion.h2>
-                      </motion.div>
-
-                      {/* Logo Grid */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-24 md:gap-48 items-center justify-items-center max-w-5xl mx-auto px-8 mb-48">
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          whileInView={{ opacity: 1, scale: 1 }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 0.5, delay: 0.1 }}
-                          className="relative w-[232px] h-[70px] filter brightness-0 invert opacity-70 hover:opacity-100 transition-opacity duration-300"
-                        >
-                          <Image
-                            src="/arch.png"
-                            alt="Arch"
-                            fill
-                            style={{ objectFit: 'contain' }}
-                          />
-                        </motion.div>
-
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          whileInView={{ opacity: 1, scale: 1 }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 0.5, delay: 0.2 }}
-                          className="relative w-[265px] h-[80px] filter brightness-0 invert opacity-70 hover:opacity-100 transition-opacity duration-300"
-                        >
-                          <Image
-                            src="/btcsl.png"
-                            alt="BTCSL"
-                            fill
-                            style={{ objectFit: 'contain' }}
-                          />
-                        </motion.div>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Bottom Glow Effect */}
-                  <div className="fixed bottom-0 left-1/2 -translate-x-1/2 translate-y-[20%] w-[4000px] h-[2000px] opacity-20 pointer-events-none z-10">
-                    <div 
-                      className="w-full h-full rounded-[50%]"
-                      style={{
-                        background: 'radial-gradient(circle at 50% 100%, #FF4500 0%, rgba(255, 69, 0, 0.3) 25%, rgba(255, 69, 0, 0) 50%)',
-                        filter: 'blur(120px)',
-                      }}
-                    />
-                  </div>
                 </div>
-              </section>
-
-              {/* Single Footer */}
-              <footer className="fixed bottom-0 w-full h-16 bg-black/50 backdrop-blur-sm border-t border-gray-800 flex items-center justify-between px-4 z-50">
-                <div className="flex items-center text-gray-400 space-x-4">
-                  <div className="flex items-center">
-                    <Image src="/btclogo.png" alt="Bitcoin Logo" width={20} height={20} />
-                    <span className="ml-2">
-                      {btcPrice ? `$${btcPrice.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                      })}` : 'Loading...'}
-                    </span>
-                  </div>
-                  <div className="h-4 w-px bg-gray-800"></div>
-                  <div className="flex items-center">
-                    <Image 
-                      src="/speed.svg" 
-                      alt="Fee Rate" 
-                      width={24} 
-                      height={24} 
-                      className="mr-2"
-                    />
-                    <span>{mempoolFee ? `${mempoolFee} sats/vB` : 'Loading...'}</span>
-                  </div>
-                </div>
-                <div className="flex items-center border-l border-gray-800 pl-4">
-                  <a href="https://twitter.com/chimeraBTC" className="text-gray-400 mx-2 hover:text-white" target="_blank" rel="noopener noreferrer"><FaTwitter size={24} /></a>
-                  {/* Hidden for now, will be restored later
-                  <a href="https://discord.gg/chimera" className="text-gray-400 mx-2 hover:text-white" target="_blank" rel="noopener noreferrer"><FaDiscord size={24} /></a>
-                  <a href="https://docs.chimera.io" className="text-gray-400 mx-2 hover:text-white" target="_blank" rel="noopener noreferrer"><FaBook size={24} /></a>
-                  */}
-                </div>
-              </footer>
-            </div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
+
+        {/* Add Footer component */}
+        <Footer />
       </main>
+
+      {/* Add this to your existing styles or create a new style tag in your document head */}
+      <style jsx global>{`
+        @keyframes gradient {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
+        }
+      `}</style>
     </div>
   );
 }
