@@ -70,10 +70,11 @@ export default function Footer() {
           </span>
         </div>
       </div>
-      <div className="flex items-center border-l border-gray-800 pl-3">
+      <div className="flex items-center">
+        <div className="h-3 w-px bg-gray-800 mx-2.5"></div>
         <a
           href="https://twitter.com/chimeraBTC"
-          className="text-gray-400 mx-1.5 hover:text-white"
+          className="text-gray-400 hover:text-white mx-2.5"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -81,11 +82,11 @@ export default function Footer() {
         </a>
         <a
           href="https://discord.gg/chimerabtc"
-          className="text-gray-400 mx-1.5 hover:text-white"
+          className="text-gray-400 hover:text-white flex items-center mx-2.5"
           target="_blank"
           rel="noopener noreferrer"
         >
-          <FaDiscord size={17} />
+          <FaDiscord size={19} style={{ transform: 'translateY(-0.5px)' }} />
         </a>
       </div>
     </footer>

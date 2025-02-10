@@ -9,6 +9,7 @@ import { FaTwitter } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import ConfettiExplosion from "react-confetti-explosion";
 import Header from "@/components/header";
+import Banner from "@/components/Banner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -39,7 +40,7 @@ export default function Home() {
   const backendUrl = "https://api.chimera.finance/api";
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [mintedCount, setMintedCount] = useState(0); // Replace with actual minted count logic
+  const [mintedCount, setMintedCount] = useState(0);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const totalSupply = 2000;
   const [isMinting, setIsMinting] = useState(false);
@@ -63,6 +64,13 @@ export default function Home() {
       clearInterval(imageInterval);
     };
   }, []);
+
+  const formatTime = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const claimInscription = async () => {
     try {
@@ -200,6 +208,7 @@ export default function Home() {
 
   return (
     <div className="overflow-hidden">
+      <Banner />
       <main
         className={`flex min-h-screen flex-col items-center ${inter.className} overflow-x-hidden`}
       >
@@ -234,7 +243,7 @@ export default function Home() {
             <div className="w-full min-h-screen flex items-center justify-center px-4">
               <div className="relative">
                 <motion.div
-                  className="w-full max-w-4xl bg-black/60 backdrop-blur-md rounded-2xl overflow-hidden shadow-2xl border border-white/10"
+                  className="w-full max-w-[1280px] bg-black/60 backdrop-blur-md rounded-2xl overflow-hidden border border-white/[0.1]"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
@@ -268,33 +277,51 @@ export default function Home() {
                     <div className="w-full md:w-1/2 p-8 flex flex-col justify-between">
                       <div>
                         <h2 className="text-2xl font-bold text-white mb-6">
-                          CHIMERA GENESIS
+                          CHIMERA GENESIS ◉▣
                         </h2>
                         <p className="text-gray-300 text-sm leading-relaxed mb-8">
-                          CHIMERA GENESIS is a Hybrid Inscription collection of
-                          2,000 Digital Artifacts on Bitcoin (testnet4). Each
-                          inscription can dynamically change states and unlock
-                          100,000 CHIMERA•GENESIS Rune tokens via our trustless
-                          fractionalization protocol, you can swap for these
-                          tokens at any time (and vice versa).
+                          CHIMERA GENESIS is a Hybrid Inscription collection on L1 BTC. 
+                          Each inscription can be converted into 100,000 CHIMERA•GENESIS Runes 
+                          tokens and vice versa. Swapping Runes back to Inscriptions &ldquo;re-rolls&rdquo;
+                          for a new art piece each time. Use the Runes to provide liquidity and earn BTC yield on our
+                          Hybrid DEX AMM coming soon.
+                          <br />
+                          <br />
                         </p>
-                        <div className="space-y-4">
+
+                        {/* Phase Progress Bars */}
+                        <div className="space-y-6">
+                          {/* WL Phase */}
                           <div>
                             <div className="flex justify-between text-sm text-gray-300 mb-2">
-                              <span>Progress</span>
                               <span>
-                                {mintedCount}/{totalSupply}
+                                WL Phase <span className="text-gray-500 ml-2">Max 10 per wallet</span>
                               </span>
+                              <span>24:00:00</span>
                             </div>
                             <div className="w-full h-2 bg-black rounded-full overflow-hidden">
                               <motion.div
                                 className="h-full bg-gradient-to-r from-orange-500 to-red-500"
                                 initial={{ width: 0 }}
-                                animate={{
-                                  width: `${
-                                    (mintedCount / totalSupply) * 100
-                                  }%`,
-                                }}
+                                animate={{ width: '0%' }}
+                                transition={{ duration: 0.5 }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Public Phase */}
+                          <div>
+                            <div className="flex justify-between text-sm text-gray-300 mb-2">
+                              <span>
+                                Public Phase <span className="text-gray-500 ml-2">Max 5 per wallet</span>
+                              </span>
+                              <span>24:00:00</span>
+                            </div>
+                            <div className="w-full h-2 bg-black rounded-full overflow-hidden">
+                              <motion.div
+                                className="h-full bg-gradient-to-r from-orange-500 to-red-500"
+                                initial={{ width: 0 }}
+                                animate={{ width: '0%' }}
                                 transition={{ duration: 0.5 }}
                               />
                             </div>
@@ -302,51 +329,77 @@ export default function Home() {
                         </div>
                       </div>
 
-                      <motion.button
-                        onClick={handleMint}
-                        className="relative w-full mt-8 px-6 py-3 text-lg font-semibold text-white rounded-lg"
-                        whileHover={{
-                          scale: 1.02,
-                          transition: { duration: 0.2 },
-                        }}
-                        whileTap={{ scale: 0.98 }}
-                        disabled={isMinting}
-                      >
-                        <div
-                          className="absolute inset-0 rounded-lg bg-gradient-to-r from-[#FFA200] via-[#FF3000] to-[#FFA200]"
-                          style={gradientAnimation}
-                        />
-                        <div className="absolute inset-[1px] rounded-lg bg-black/95 backdrop-blur-sm" />
-                        <span className="relative z-10 flex items-center justify-center">
-                          {isMinting ? (
-                            <>
-                              <svg
-                                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                              >
-                                <circle
-                                  className="opacity-25"
-                                  cx="12"
-                                  cy="12"
-                                  r="10"
-                                  stroke="currentColor"
-                                  strokeWidth="4"
-                                ></circle>
-                                <path
-                                  className="opacity-75"
-                                  fill="currentColor"
-                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                ></path>
-                              </svg>
-                              Minting...
-                            </>
-                          ) : (
-                            "Mint Inscription"
-                          )}
-                        </span>
-                      </motion.button>
+                      <div className="mt-auto">
+                        {/* Mint Progress */}
+                        <div className="mb-4">
+                        <p className="text-gray-400 text-sm">
+                          *You must wait for 1 block to confirm before receiving and swapping your Inscriptions.
+                        </p>
+                        <br />
+                          <div className="flex justify-between text-sm text-gray-300 mb-2">
+                            <span>Progress</span>
+                            <span>
+                              {mintedCount}/{totalSupply}
+                            </span>
+                          </div>
+                          <div className="w-full h-2 bg-black rounded-full overflow-hidden">
+                            <motion.div
+                              className="h-full bg-gradient-to-r from-orange-500 to-red-500"
+                              initial={{ width: 0 }}
+                              animate={{
+                                width: `${(mintedCount / totalSupply) * 100}%`,
+                              }}
+                              transition={{ duration: 0.5 }}
+                            />
+                          </div>
+                        </div>
+
+                        <motion.button
+                          onClick={ordinalAddress ? handleMint : unisatConnectWallet}
+                          className="relative w-full px-6 py-3 text-lg font-semibold text-white rounded-lg"
+                          whileHover={{
+                            scale: 1.02,
+                            transition: { duration: 0.2 },
+                          }}
+                          whileTap={{ scale: 0.98 }}
+                          disabled={isMinting}
+                        >
+                          <div
+                            className="absolute inset-0 rounded-lg bg-gradient-to-r from-[#FFA200] via-[#FF3000] to-[#FFA200]"
+                            style={gradientAnimation}
+                          />
+                          <div className="absolute inset-[1px] rounded-lg bg-black/95 backdrop-blur-sm" />
+                          <span className="relative z-10 flex items-center justify-center">
+                            {isMinting ? (
+                              <>
+                                <svg
+                                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                  ></circle>
+                                  <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                  ></path>
+                                </svg>
+                                Minting...
+                              </>
+                            ) : (
+                              (ordinalAddress ? "Mint" : "Connect Wallet")
+                            )}
+                          </span>
+                        </motion.button>
+                      </div>
                     </div>
                   </div>
                 </motion.div>

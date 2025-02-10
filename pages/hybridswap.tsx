@@ -9,6 +9,7 @@ import { FaTwitter, FaDiscord } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import ConfettiExplosion from "react-confetti-explosion";
 import Header from "@/components/header";
+import Banner from "@/components/Banner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -282,11 +283,16 @@ export default function HybridSwap() {
     setIsSwapping(false);
     setBroadcastTxId(txid);
     setShowSuccess(true);
+    // Auto hide the success message after 10 seconds
+    setTimeout(() => {
+      setShowSuccess(false);
+    }, 10000);
     fetchData();
   };
 
   return (
     <div className="overflow-hidden">
+      <Banner />
       <main
         className={`flex min-h-screen flex-col items-center ${inter.className} overflow-x-hidden`}
       >
@@ -321,47 +327,55 @@ export default function HybridSwap() {
             <div className="w-full min-h-screen flex items-center justify-center px-4">
               <div className="relative w-full flex justify-center">
                 <motion.div
-                  className="w-full max-w-[1120px] bg-black/60 backdrop-blur-md rounded-2xl overflow-hidden shadow-2xl border border-white/10"
+                  className="w-full max-w-[1280px] bg-black/60 backdrop-blur-md rounded-2xl overflow-hidden border border-white/[0.1]"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <div className="flex flex-col md:flex-row gap-8 p-8">
+                  <div className="flex flex-col md:flex-row gap-8 p-8 h-[640px]">
                     {/* Left Column - Image Grid */}
-                    <div className="w-full md:w-1/2">
-                      <div className="bg-black/80 backdrop-blur-md rounded-xl p-4 h-[400px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-white/[0.07] hover:[&::-webkit-scrollbar-thumb]:bg-white/[0.15] [&::-webkit-scrollbar-track]:bg-transparent">
-                        <div className="grid grid-cols-2 gap-4">
-                          {inscriptionList.map(
-                            (image: string, index: number) => (
-                              <div
-                                key={index}
-                                className={`relative aspect-square rounded-lg overflow-hidden cursor-pointer transition-all duration-200 ${
-                                  selectedImage === index && !isSwapFlipped
-                                    ? "ring-2 ring-[#FF6B00] ring-offset-1 ring-offset-black/80"
-                                    : ""
-                                }`}
-                                onClick={() => handleImageSelect(index)}
-                              >
-                                <Image
-                                  src={`https://static-testnet4.unisat.io/content/${image}`}
-                                  alt={`Inscription ${index + 1}`}
-                                  fill
-                                  className={`object-cover transition-transform duration-300 ${
-                                    selectedImage === index
-                                      ? "scale-105"
-                                      : "hover:scale-105"
+                    <div className="w-full md:w-1/2 h-full flex items-center">
+                      <div className="w-full bg-black/80 backdrop-blur-md rounded-xl p-4 h-[576px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-white/[0.07] hover:[&::-webkit-scrollbar-thumb]:bg-white/[0.15] [&::-webkit-scrollbar-track]:bg-transparent border border-white/[0.12]">
+                        {inscriptionList.length > 0 ? (
+                          <div className="grid grid-cols-2 gap-4">
+                            {inscriptionList.map(
+                              (image: string, index: number) => (
+                                <div
+                                  key={index}
+                                  className={`relative aspect-square rounded-lg overflow-hidden cursor-pointer transition-all duration-200 ${
+                                    selectedImage === index && !isSwapFlipped
+                                      ? "ring-2 ring-[#FF6B00] ring-offset-1 ring-offset-black/80"
+                                      : ""
                                   }`}
-                                />
-                              </div>
-                            )
-                          )}
-                        </div>
+                                  onClick={() => handleImageSelect(index)}
+                                >
+                                  <Image
+                                    src={`https://static-testnet4.unisat.io/content/${image}`}
+                                    alt={`Inscription ${index + 1}`}
+                                    fill
+                                    className={`object-cover transition-transform duration-300 ${
+                                      selectedImage === index
+                                        ? "scale-105"
+                                        : "hover:scale-105"
+                                    }`}
+                                  />
+                                </div>
+                              )
+                            )}
+                          </div>
+                        ) : (
+                          <div className="h-full flex items-center justify-center">
+                            <p className="text-gray-400 text-center">
+                              No Inscriptions found from the CHIMERA GENESIS collection.
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
 
                     {/* Right Column - Swap Module */}
                     <div className="w-full md:w-1/2 flex items-center justify-center">
-                      <div className="bg-black/80 backdrop-blur-md rounded-xl p-6 max-w-[400px] w-full">
+                      <div className="w-full max-w-[400px] bg-black/95 backdrop-blur-md rounded-xl p-6 border border-white/[0.12]">
                         <div className="mb-4">
                           <div className="flex items-center justify-between mb-4">
                             <h2 className="text-base font-medium text-white">
@@ -382,10 +396,10 @@ export default function HybridSwap() {
                               value={sendAmount}
                               onChange={(e) => setSendAmount(e.target.value)}
                             />
-                            <span className="text-white/80 text-sm ml-2">
+                            <span className="text-white/80 text-sm ml-2 inline-flex whitespace-nowrap">
                               {isSwapFlipped
-                                ? "CHIMERA•GENESIS▣"
-                                : "INSCRIPTION◉"}
+                                ? "CHIMERA•GENESIS ▣"
+                                : "INSCRIPTION ◉"}
                             </span>
                           </div>
                         </div>
@@ -438,16 +452,16 @@ export default function HybridSwap() {
                               value={getAmount}
                               onChange={(e) => setGetAmount(e.target.value)}
                             />
-                            <span className="text-white/80 text-sm ml-2">
+                            <span className="text-white/80 text-sm ml-2 inline-flex whitespace-nowrap">
                               {isSwapFlipped
-                                ? "INSCRIPTION◉"
-                                : "CHIMERA•GENESIS▣"}
+                                ? "INSCRIPTION ◉"
+                                : "CHIMERA•GENESIS ▣"}
                             </span>
                           </div>
                         </div>
 
                         <motion.button
-                          onClick={handleSwap}
+                          onClick={ordinalAddress ? handleSwap : unisatConnectWallet}
                           className="relative w-full px-6 py-2.5 text-base font-semibold text-white rounded-lg"
                           whileHover={{
                             scale: 1.02,
@@ -511,7 +525,7 @@ export default function HybridSwap() {
                                 Swapping...
                               </>
                             ) : (
-                              "Swap"
+                              ordinalAddress ? "Swap" : "Connect Wallet"
                             )}
                           </span>
                         </motion.button>
@@ -600,12 +614,19 @@ export default function HybridSwap() {
                 />
               </div>
               <div className="mt-2">
-                <p className="text-white/60 text-base">
+                <p className="text-white/60 text-base inline-flex whitespace-nowrap mb-2">
                   {isSwapFlipped
-                    ? `You received 1 INSCRIPTION◉`
-                    : `You received 100,000 CHIMERA•GENESIS▣`}
+                    ? `You received 1 INSCRIPTION ◉`
+                    : `You received 100,000 CHIMERA•GENESIS ▣`}
                 </p>
-                <p className="text-white/60 text-sm mt-1">{broadcastTxId}</p>
+                <a 
+                  href={broadcastTxId}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#FF6B00] hover:text-[#FF3000] text-sm block mt-2 transition-colors"
+                >
+                  View tx in mempool
+                </a>
               </div>
             </motion.div>
           )}
