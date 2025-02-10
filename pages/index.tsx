@@ -45,6 +45,8 @@ export default function Home() {
   const totalSupply = 2000;
   const [isMinting, setIsMinting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMsg, setShowErrorMsg] = useState("");
   const [mintedImage, setMintedImage] = useState("");
   const [paymentAddress, setPaymentAddress] = useState("");
   const [paymentPubkey, setPaymentPubkey] = useState("");
@@ -75,18 +77,26 @@ export default function Home() {
   const claimInscription = async () => {
     try {
       if (ordinalAddress === "") throw "Connect Wallet";
-      const res = await fetch(`${backendUrl}/swap/pre-claim-generate-psbt`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userAddress: ordinalAddress,
-          userPubkey: ordinalPubkey,
-        }),
-      });
+      const res: any = await fetch(
+        `${backendUrl}/swap/pre-claim-generate-psbt`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userAddress: ordinalAddress,
+            userPubkey: ordinalPubkey,
+          }),
+        }
+      );
 
-      const { psbt, signIndexes, inscriptionUtxo } = await res.json();
+      const { psbt, signIndexes, inscriptionUtxo, error } = await res.json();
+      if (error) {
+        setShowErrorModal(true);
+        setShowErrorMsg(error);
+        return false;
+      }
       console.log(psbt, signIndexes, inscriptionUtxo);
       const toSignInputs: {
         index: number;
@@ -125,9 +135,10 @@ export default function Home() {
       const { txid } = await pushRes.json();
       console.log("Mint Txid => ", txid);
       setMintedImage(inscriptionUtxo.inscriptionId);
+      return true;
     } catch (error) {
       setIsMinting(false);
-      throw error;
+      return false;
     }
   };
 
@@ -148,10 +159,12 @@ export default function Home() {
 
   const handleMint = async () => {
     setIsMinting(true);
-    await claimInscription();
+    const claimResult = await claimInscription();
+    if (claimResult) {
+      setShowSuccessModal(true);
+      fetchInscriptionCount();
+    }
     setIsMinting(false);
-    setShowSuccessModal(true);
-    fetchInscriptionCount();
   };
 
   const unisatConnectWallet = async () => {
@@ -478,6 +491,59 @@ export default function Home() {
                         </p>
                         <motion.button
                           onClick={() => setShowSuccessModal(false)}
+                          className="text-white/80 hover:text-white transition-colors"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Close
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  </div>
+                  {/* Confetti above everything */}
+                  <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-[999999]">
+                    <ConfettiExplosion
+                      force={0.8}
+                      duration={3000}
+                      particleCount={100}
+                      width={1600}
+                    />
+                  </div>
+                </>
+              )}
+            </AnimatePresence>
+
+            {/* Error Modal */}
+            <AnimatePresence>
+              {showErrorModal && (
+                <>
+                  <div className="fixed inset-0 flex items-center justify-center z-[100]">
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                      onClick={() => setShowErrorModal(false)}
+                    />
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{
+                        type: "spring",
+                        damping: 25,
+                        stiffness: 300,
+                      }}
+                      className="relative bg-black/90 rounded-2xl p-8 max-w-lg w-full mx-4 border border-white/10 shadow-2xl z-[102]"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="text-center">
+                        <h3 className="text-2xl font-bold text-white mb-6">
+                          Error!
+                        </h3>
+                        <p className="text-gray-300 mb-4">{errorMsg}</p>
+                        <motion.button
+                          onClick={() => setShowErrorModal(false)}
                           className="text-white/80 hover:text-white transition-colors"
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
