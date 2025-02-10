@@ -36,6 +36,8 @@ export default function HybridSwap() {
   const [ordinalPubkey, setOrdinalPubkey] = useState("");
   const [inscriptionList, setInscriptionList] = useState<Array<string>>([]);
   const [broadcastTxId, setBroadcastTxId] = useState("");
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [selectedModalImage, setSelectedModalImage] = useState<string>("");
 
   useEffect(() => {
     fetchData();
@@ -335,41 +337,48 @@ export default function HybridSwap() {
                   <div className="flex flex-col md:flex-row gap-8 p-8 h-[640px]">
                     {/* Left Column - Image Grid */}
                     <div className="w-full md:w-1/2 h-full flex items-center">
-                      <div className="w-full bg-black/80 backdrop-blur-md rounded-xl p-4 h-[576px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-white/[0.07] hover:[&::-webkit-scrollbar-thumb]:bg-white/[0.15] [&::-webkit-scrollbar-track]:bg-transparent border border-white/[0.12]">
-                        {inscriptionList.length > 0 ? (
-                          <div className="grid grid-cols-2 gap-4">
-                            {inscriptionList.map(
-                              (image: string, index: number) => (
-                                <div
-                                  key={index}
-                                  className={`relative aspect-square rounded-lg overflow-hidden cursor-pointer transition-all duration-200 ${
-                                    selectedImage === index && !isSwapFlipped
-                                      ? "ring-2 ring-[#FF6B00] ring-offset-1 ring-offset-black/80"
-                                      : ""
-                                  }`}
-                                  onClick={() => handleImageSelect(index)}
-                                >
-                                  <Image
-                                    src={`https://static-testnet4.unisat.io/content/${image}`}
-                                    alt={`Inscription ${index + 1}`}
-                                    fill
-                                    className={`object-cover transition-transform duration-300 ${
-                                      selectedImage === index
-                                        ? "scale-105"
-                                        : "hover:scale-105"
+                      <div className="w-full">
+                        <h2 className="text-xl font-medium text-white mb-1 text-center">Your Inscriptions</h2>
+                        <div className="bg-black/80 backdrop-blur-md rounded-xl p-4 h-[576px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-white/[0.07] hover:[&::-webkit-scrollbar-thumb]:bg-white/[0.15] [&::-webkit-scrollbar-track]:bg-transparent border border-white/[0.12]">
+                          {inscriptionList.length > 0 ? (
+                            <div className="grid grid-cols-2 gap-4">
+                              {inscriptionList.map(
+                                (image: string, index: number) => (
+                                  <div
+                                    key={index}
+                                    className={`relative aspect-square rounded-lg overflow-hidden cursor-pointer transition-all duration-200 ${
+                                      selectedImage === index && !isSwapFlipped
+                                        ? "ring-2 ring-[#FF6B00] ring-offset-1 ring-offset-black/80"
+                                        : ""
                                     }`}
-                                  />
-                                </div>
-                              )
-                            )}
-                          </div>
-                        ) : (
-                          <div className="h-full flex items-center justify-center">
-                            <p className="text-gray-400 text-center">
-                              No Inscriptions found from the CHIMERA GENESIS collection.
-                            </p>
-                          </div>
-                        )}
+                                    onClick={() => handleImageSelect(index)}
+                                    onDoubleClick={() => {
+                                      setSelectedModalImage(image);
+                                      setIsImageModalOpen(true);
+                                    }}
+                                  >
+                                    <Image
+                                      src={`https://static-testnet4.unisat.io/content/${image}`}
+                                      alt={`Inscription ${index + 1}`}
+                                      fill
+                                      className={`object-cover transition-transform duration-300 ${
+                                        selectedImage === index
+                                          ? "scale-105"
+                                          : "hover:scale-105"
+                                      }`}
+                                    />
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          ) : (
+                            <div className="h-full flex items-center justify-center">
+                              <p className="text-gray-400 text-center">
+                                No Inscriptions found from the CHIMERA GENESIS collection.
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -632,6 +641,61 @@ export default function HybridSwap() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Image Modal */}
+      <AnimatePresence>
+        {isImageModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center z-[100]">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+              onClick={() => setIsImageModalOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative w-[90vw] h-[90vh] max-w-6xl max-h-[90vh] z-[101]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="relative w-full h-full">
+                <Image
+                  src={`https://static-testnet4.unisat.io/content/${selectedModalImage}`}
+                  alt="Enlarged Inscription Preview"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsImageModalOpen(false);
+                  }}
+                  className="absolute top-4 right-4 text-white/80 hover:text-white bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors duration-200 z-[102]"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <style jsx global>{`
         @keyframes gradient {

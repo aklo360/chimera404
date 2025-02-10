@@ -345,7 +345,7 @@ export default function Home() {
                       <div className="mt-auto">
                         {/* Mint Progress */}
                         <div className="mb-4">
-                        <p className="text-gray-400 text-sm">
+                        <p className="text-[#FF6B00] text-sm opacity-80">
                           *You must wait for 1 block to confirm before receiving and swapping your Inscriptions.
                         </p>
                         <br />
@@ -488,6 +488,9 @@ export default function Home() {
                         </p>
                         <p className="font-mono text-white bg-black/50 rounded-lg p-3 mb-8 break-all">
                           Inscription ID: {mintedImage}
+                        </p>
+                        <p className="text-[#FF6B00] text-sm opacity-80 mb-8">
+                          *You must wait for 1 block to confirm before receiving and swapping your Inscriptions.
                         </p>
                         <motion.button
                           onClick={() => setShowSuccessModal(false)}
