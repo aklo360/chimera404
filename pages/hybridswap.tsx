@@ -259,6 +259,7 @@ export default function HybridSwap() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
+            userAddress: ordinalAddress,
             signedPSBT: signedPsbt,
             inscriptionUtxo,
           }),
@@ -338,7 +339,9 @@ export default function HybridSwap() {
                     {/* Left Column - Image Grid */}
                     <div className="w-full md:w-1/2 h-full flex items-center">
                       <div className="w-full">
-                        <h2 className="text-xl font-medium text-white mb-1 text-center">Your Inscriptions</h2>
+                        <h2 className="text-xl font-medium text-white mb-1 text-center">
+                          Your Inscriptions
+                        </h2>
                         <div className="bg-black/80 backdrop-blur-md rounded-xl p-4 h-[576px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-white/[0.07] hover:[&::-webkit-scrollbar-thumb]:bg-white/[0.15] [&::-webkit-scrollbar-track]:bg-transparent border border-white/[0.12]">
                           {inscriptionList.length > 0 ? (
                             <div className="grid grid-cols-2 gap-4">
@@ -374,7 +377,8 @@ export default function HybridSwap() {
                           ) : (
                             <div className="h-full flex items-center justify-center">
                               <p className="text-gray-400 text-center">
-                                No Inscriptions found from the CHIMERA GENESIS collection.
+                                No Inscriptions found from the CHIMERA GENESIS
+                                collection.
                               </p>
                             </div>
                           )}
@@ -470,7 +474,9 @@ export default function HybridSwap() {
                         </div>
 
                         <motion.button
-                          onClick={ordinalAddress ? handleSwap : unisatConnectWallet}
+                          onClick={
+                            ordinalAddress ? handleSwap : unisatConnectWallet
+                          }
                           className="relative w-full px-6 py-2.5 text-base font-semibold text-white rounded-lg"
                           whileHover={{
                             scale: 1.02,
@@ -533,8 +539,10 @@ export default function HybridSwap() {
                                 </svg>
                                 Swapping...
                               </>
+                            ) : ordinalAddress ? (
+                              "Swap"
                             ) : (
-                              ordinalAddress ? "Swap" : "Connect Wallet"
+                              "Connect Wallet"
                             )}
                           </span>
                         </motion.button>
@@ -628,7 +636,7 @@ export default function HybridSwap() {
                     ? `You received 1 INSCRIPTION ◉`
                     : `You received 100,000 CHIMERA•GENESIS ▣`}
                 </p>
-                <a 
+                <a
                   href={broadcastTxId}
                   target="_blank"
                   rel="noopener noreferrer"

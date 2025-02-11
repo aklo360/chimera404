@@ -71,7 +71,9 @@ export default function Home() {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${hrs.toString().padStart(2, "0")}:${mins
+      .toString()
+      .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   const claimInscription = async () => {
@@ -125,6 +127,7 @@ export default function Home() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
+            userAddress: ordinalAddress,
             signedPSBT: signedPsbt,
             inscriptionUtxo,
             mint: true,
@@ -293,11 +296,13 @@ export default function Home() {
                           CHIMERA GENESIS ◉▣
                         </h2>
                         <p className="text-gray-300 text-sm leading-relaxed mb-8">
-                          CHIMERA GENESIS is a Hybrid Inscription collection on L1 BTC. 
-                          Each inscription can be converted into 100,000 CHIMERA•GENESIS Runes 
-                          tokens and vice versa. Swapping Runes back to Inscriptions &ldquo;re-rolls&rdquo;
-                          for a new art piece each time. Use the Runes to provide liquidity and earn BTC yield on our
-                          Hybrid DEX AMM coming soon.
+                          CHIMERA GENESIS is a Hybrid Inscription collection on
+                          L1 BTC. Each inscription can be converted into 100,000
+                          CHIMERA•GENESIS Runes tokens and vice versa. Swapping
+                          Runes back to Inscriptions &ldquo;re-rolls&rdquo; for
+                          a new art piece each time. Use the Runes to provide
+                          liquidity and earn BTC yield on our Hybrid DEX AMM
+                          coming soon.
                           <br />
                           <br />
                         </p>
@@ -308,7 +313,10 @@ export default function Home() {
                           <div>
                             <div className="flex justify-between text-sm text-gray-300 mb-2">
                               <span>
-                                WL Phase <span className="text-gray-500 ml-2">Max 10 per wallet</span>
+                                WL Phase{" "}
+                                <span className="text-gray-500 ml-2">
+                                  Max 10 per wallet
+                                </span>
                               </span>
                               <span>24:00:00</span>
                             </div>
@@ -316,7 +324,7 @@ export default function Home() {
                               <motion.div
                                 className="h-full bg-gradient-to-r from-orange-500 to-red-500"
                                 initial={{ width: 0 }}
-                                animate={{ width: '0%' }}
+                                animate={{ width: "0%" }}
                                 transition={{ duration: 0.5 }}
                               />
                             </div>
@@ -326,7 +334,10 @@ export default function Home() {
                           <div>
                             <div className="flex justify-between text-sm text-gray-300 mb-2">
                               <span>
-                                Public Phase <span className="text-gray-500 ml-2">Max 5 per wallet</span>
+                                Public Phase{" "}
+                                <span className="text-gray-500 ml-2">
+                                  Max 5 per wallet
+                                </span>
                               </span>
                               <span>24:00:00</span>
                             </div>
@@ -334,7 +345,7 @@ export default function Home() {
                               <motion.div
                                 className="h-full bg-gradient-to-r from-orange-500 to-red-500"
                                 initial={{ width: 0 }}
-                                animate={{ width: '0%' }}
+                                animate={{ width: "0%" }}
                                 transition={{ duration: 0.5 }}
                               />
                             </div>
@@ -345,10 +356,11 @@ export default function Home() {
                       <div className="mt-auto">
                         {/* Mint Progress */}
                         <div className="mb-4">
-                        <p className="text-[#FF6B00] text-sm opacity-80">
-                          *You must wait for 1 block to confirm before receiving and swapping your Inscriptions.
-                        </p>
-                        <br />
+                          <p className="text-[#FF6B00] text-sm opacity-80">
+                            *You must wait for 1 block to confirm before
+                            receiving and swapping your Inscriptions.
+                          </p>
+                          <br />
                           <div className="flex justify-between text-sm text-gray-300 mb-2">
                             <span>Progress</span>
                             <span>
@@ -368,7 +380,9 @@ export default function Home() {
                         </div>
 
                         <motion.button
-                          onClick={ordinalAddress ? handleMint : unisatConnectWallet}
+                          onClick={
+                            ordinalAddress ? handleMint : unisatConnectWallet
+                          }
                           className="relative w-full px-6 py-3 text-lg font-semibold text-white rounded-lg"
                           whileHover={{
                             scale: 1.02,
@@ -407,8 +421,10 @@ export default function Home() {
                                 </svg>
                                 Minting...
                               </>
+                            ) : ordinalAddress ? (
+                              "Mint"
                             ) : (
-                              (ordinalAddress ? "Mint" : "Connect Wallet")
+                              "Connect Wallet"
                             )}
                           </span>
                         </motion.button>
@@ -490,7 +506,8 @@ export default function Home() {
                           Inscription ID: {mintedImage}
                         </p>
                         <p className="text-[#FF6B00] text-sm opacity-80 mb-8">
-                          *You must wait for 1 block to confirm before receiving and swapping your Inscriptions.
+                          *You must wait for 1 block to confirm before receiving
+                          and swapping your Inscriptions.
                         </p>
                         <motion.button
                           onClick={() => setShowSuccessModal(false)}
