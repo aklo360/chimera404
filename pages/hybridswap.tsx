@@ -38,6 +38,8 @@ export default function HybridSwap() {
   const [broadcastTxId, setBroadcastTxId] = useState("");
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedModalImage, setSelectedModalImage] = useState<string>("");
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMsg, setShowErrorMsg] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -165,8 +167,14 @@ export default function HybridSwap() {
         }
       );
 
-      const { hexPsbt, signIndexes, runeUtxos, remainAmount } =
+      const { hexPsbt, signIndexes, runeUtxos, remainAmount, error } =
         await res.json();
+
+      if (error) {
+        setShowErrorModal(true);
+        setShowErrorMsg(error);
+        return "";
+      }
 
       console.log(hexPsbt, signIndexes, runeUtxos, remainAmount);
 
@@ -230,8 +238,14 @@ export default function HybridSwap() {
         }
       );
 
-      const { psbt, signIndexes, inscriptionUtxo } = await res.json();
+      const { psbt, signIndexes, inscriptionUtxo, error } = await res.json();
       console.log(psbt, signIndexes, inscriptionUtxo);
+
+      if (error) {
+        setShowErrorModal(true);
+        setShowErrorMsg(error);
+        return "";
+      }
       const toSignInputs: {
         index: number;
         address: string;
@@ -271,7 +285,8 @@ export default function HybridSwap() {
       return `https://mempool.space/testnet4/tx/${txid}`;
     } catch (error) {
       setIsSwapping(false);
-      throw error;
+      return "";
+      // throw error;
     }
   };
 
@@ -284,13 +299,15 @@ export default function HybridSwap() {
       txid = await swapInscriptionRune(inscriptionList[selectedImage]);
     }
     setIsSwapping(false);
-    setBroadcastTxId(txid);
-    setShowSuccess(true);
-    // Auto hide the success message after 10 seconds
-    setTimeout(() => {
-      setShowSuccess(false);
-    }, 10000);
-    fetchData();
+    if (txid !== "") {
+      setBroadcastTxId(txid);
+      setShowSuccess(true);
+      // Auto hide the success message after 10 seconds
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 10000);
+      fetchData();
+    }
   };
 
   return (
@@ -645,6 +662,59 @@ export default function HybridSwap() {
                   </a>
                 </div>
               </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Error Modal */}
+          <AnimatePresence>
+            {showErrorModal && (
+              <>
+                <div className="fixed inset-0 flex items-center justify-center z-[100]">
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                    onClick={() => setShowErrorModal(false)}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{
+                      type: "spring",
+                      damping: 25,
+                      stiffness: 300,
+                    }}
+                    className="relative bg-black/90 rounded-2xl p-8 max-w-lg w-full mx-4 border border-white/10 shadow-2xl z-[102]"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="text-center">
+                      <h3 className="text-2xl font-bold text-white mb-6">
+                        Error!
+                      </h3>
+                      <p className="text-gray-300 mb-4">{errorMsg}</p>
+                      <motion.button
+                        onClick={() => setShowErrorModal(false)}
+                        className="text-white/80 hover:text-white transition-colors"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Close
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                </div>
+                {/* Confetti above everything */}
+                <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-[999999]">
+                  <ConfettiExplosion
+                    force={0.8}
+                    duration={3000}
+                    particleCount={100}
+                    width={1600}
+                  />
+                </div>
+              </>
             )}
           </AnimatePresence>
         </div>
