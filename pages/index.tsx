@@ -329,7 +329,7 @@ export default function Home() {
                         <p className="text-gray-300 text-sm leading-relaxed mb-8">
                           CHIMERA GENESIS is a Hybrid Inscription collection on
                           L1 BTC. Each inscription can be converted into 100,000
-                          CHIMERA•GENESIS Runes tokens and vice versa. Swapping
+                          CHIMERA•PROTOCOL Runes tokens and vice versa. Swapping
                           Runes back to Inscriptions &ldquo;re-rolls&rdquo; for
                           a new art piece each time. Use the Runes to provide
                           liquidity and earn BTC yield on our Hybrid DEX AMM
