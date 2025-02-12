@@ -305,7 +305,7 @@ export default function HybridSwap() {
         </Head>
 
         {/* Content Container with Vignette */}
-        <div className="relative w-full min-h-screen">
+        <div className="relative w-full min-h-screen flex flex-col">
           {/* Fixed Wavy Background that stays throughout the page */}
           <div className="fixed inset-0 w-full h-full">
             <WavyBackground className="w-full h-full" />
@@ -313,7 +313,7 @@ export default function HybridSwap() {
           </div>
 
           {/* Content */}
-          <div className="relative z-10">
+          <div className="relative z-10 flex-1 flex flex-col">
             <Header
               unisatConnectWallet={unisatConnectWallet}
               paymentAddress={paymentAddress}
@@ -327,22 +327,22 @@ export default function HybridSwap() {
             />
 
             {/* Centered Module Container */}
-            <div className="w-full min-h-screen flex items-center justify-center px-4">
-              <div className="relative w-full flex justify-center">
+            <div className="flex-1 flex items-center justify-center px-4">
+              <div className="w-full max-w-[1280px] flex flex-col items-center py-8">
                 <motion.div
-                  className="w-full max-w-[1280px] bg-black/60 backdrop-blur-md rounded-2xl overflow-hidden border border-white/[0.1]"
+                  className="w-full bg-black/60 backdrop-blur-md rounded-2xl overflow-hidden border border-white/[0.1]"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <div className="flex flex-col md:flex-row gap-8 p-8 h-[640px]">
+                  <div className="flex flex-col md:flex-row gap-6 p-6 md:p-8">
                     {/* Left Column - Image Grid */}
-                    <div className="w-full md:w-1/2 h-full flex items-center">
+                    <div className="w-full md:w-1/2 flex items-center">
                       <div className="w-full">
-                        <h2 className="text-xl font-medium text-white mb-1 text-center">
+                        <h2 className="text-xl font-medium text-white mb-3 text-center">
                           Your Inscriptions
                         </h2>
-                        <div className="bg-black/80 backdrop-blur-md rounded-xl p-4 h-[576px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-white/[0.07] hover:[&::-webkit-scrollbar-thumb]:bg-white/[0.15] [&::-webkit-scrollbar-track]:bg-transparent border border-white/[0.12]">
+                        <div className="bg-black/80 backdrop-blur-md rounded-xl p-4 h-[500px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-white/[0.07] hover:[&::-webkit-scrollbar-thumb]:bg-white/[0.15] [&::-webkit-scrollbar-track]:bg-transparent border border-white/[0.12]">
                           {inscriptionList.length > 0 ? (
                             <div className="grid grid-cols-2 gap-4">
                               {inscriptionList.map(
@@ -411,7 +411,7 @@ export default function HybridSwap() {
                             />
                             <span className="text-white/80 text-sm ml-2 inline-flex whitespace-nowrap">
                               {isSwapFlipped
-                                ? "CHIMERA•GENESIS ▣"
+                                ? "CHIMERA•PROTOCOL ▣"
                                 : "INSCRIPTION ◉"}
                             </span>
                           </div>
@@ -468,7 +468,7 @@ export default function HybridSwap() {
                             <span className="text-white/80 text-sm ml-2 inline-flex whitespace-nowrap">
                               {isSwapFlipped
                                 ? "INSCRIPTION ◉"
-                                : "CHIMERA•GENESIS ▣"}
+                                : "CHIMERA•PROTOCOL ▣"}
                             </span>
                           </div>
                         </div>
@@ -553,7 +553,7 @@ export default function HybridSwap() {
 
                 {/* Back Button - Positioned relative to the modal */}
                 <motion.div
-                  className="absolute left-1/2 transform -translate-x-1/2 -bottom-16"
+                  className="mt-4"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
@@ -581,143 +581,143 @@ export default function HybridSwap() {
               </div>
             </div>
           </div>
+
+          {/* Footer positioned at bottom */}
+          <Footer />
         </div>
 
-        {/* Replace old footer with Footer component */}
-        <Footer />
-      </main>
-
-      {/* Success Notification */}
-      <div
-        className="fixed top-20 inset-0 pointer-events-none flex items-start justify-center"
-        style={{ zIndex: 99999 }}
-      >
-        <AnimatePresence>
-          {showSuccess && (
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 50 }}
-              className="pointer-events-auto bg-black/90 backdrop-blur-md rounded-xl p-4 border border-white/10 shadow-2xl min-w-[300px]"
-            >
-              <div className="flex items-center justify-between">
-                <p className="text-white font-medium">Swap Successful!</p>
-                <button
-                  onClick={() => setShowSuccess(false)}
-                  className="text-white/60 hover:text-white transition-colors"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+        {/* Success Notification */}
+        <div
+          className="fixed top-20 inset-0 pointer-events-none flex items-start justify-center"
+          style={{ zIndex: 99999 }}
+        >
+          <AnimatePresence>
+            {showSuccess && (
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 50 }}
+                className="pointer-events-auto bg-black/90 backdrop-blur-md rounded-xl p-4 border border-white/10 shadow-2xl min-w-[300px]"
+              >
+                <div className="flex items-center justify-between">
+                  <p className="text-white font-medium">Swap Successful!</p>
+                  <button
+                    onClick={() => setShowSuccess(false)}
+                    className="text-white/60 hover:text-white transition-colors"
                   >
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </button>
-              </div>
-              <div className="absolute inset-0 pointer-events-none">
-                <ConfettiExplosion
-                  force={0.4}
-                  duration={2200}
-                  particleCount={30}
-                  width={400}
-                />
-              </div>
-              <div className="mt-2">
-                <p className="text-white/60 text-base inline-flex whitespace-nowrap mb-2">
-                  {isSwapFlipped
-                    ? `You received 1 INSCRIPTION ◉`
-                    : `You received 100,000 CHIMERA•GENESIS ▣`}
-                </p>
-                <a
-                  href={broadcastTxId}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[#FF6B00] hover:text-[#FF3000] text-sm block mt-2 transition-colors"
-                >
-                  View tx in mempool
-                </a>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Image Modal */}
-      <AnimatePresence>
-        {isImageModalOpen && (
-          <div className="fixed inset-0 flex items-center justify-center z-[100]">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/80 backdrop-blur-md"
-              onClick={() => setIsImageModalOpen(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="relative w-[90vw] h-[90vh] max-w-6xl max-h-[90vh] z-[101]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="relative w-full h-full">
-                <Image
-                  src={`https://static-testnet4.unisat.io/content/${selectedModalImage}`}
-                  alt="Enlarged Inscription Preview"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsImageModalOpen(false);
-                  }}
-                  className="absolute top-4 right-4 text-white/80 hover:text-white bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors duration-200 z-[102]"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+                <div className="absolute inset-0 pointer-events-none">
+                  <ConfettiExplosion
+                    force={0.4}
+                    duration={2200}
+                    particleCount={30}
+                    width={400}
+                  />
+                </div>
+                <div className="mt-2">
+                  <p className="text-white/60 text-base inline-flex whitespace-nowrap mb-2">
+                    {isSwapFlipped
+                      ? `You received 1 INSCRIPTION ◉`
+                      : `You received 100,000 CHIMERA•PROTOCOL ▣`}
+                  </p>
+                  <a
+                    href={broadcastTxId}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#FF6B00] hover:text-[#FF3000] text-sm block mt-2 transition-colors"
+                  >
+                    View tx in mempool
+                  </a>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-      <style jsx global>{`
-        @keyframes gradient {
-          0% {
-            background-position: 0% 50%;
+        {/* Image Modal */}
+        <AnimatePresence>
+          {isImageModalOpen && (
+            <div className="fixed inset-0 flex items-center justify-center z-[100]">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                onClick={() => setIsImageModalOpen(false)}
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="relative w-[90vw] h-[90vh] max-w-6xl max-h-[90vh] z-[101]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="relative w-full h-full">
+                  <Image
+                    src={`https://static-testnet4.unisat.io/content/${selectedModalImage}`}
+                    alt="Enlarged Inscription Preview"
+                    fill
+                    className="object-contain"
+                    priority
+                  />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsImageModalOpen(false);
+                    }}
+                    className="absolute top-4 right-4 text-white/80 hover:text-white bg-black/50 hover:bg-black/70 rounded-full p-2 transition-colors duration-200 z-[102]"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        <style jsx global>{`
+          @keyframes gradient {
+            0% {
+              background-position: 0% 50%;
+            }
+            50% {
+              background-position: 100% 50%;
+            }
+            100% {
+              background-position: 0% 50%;
+            }
           }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
-        }
-      `}</style>
+        `}</style>
+      </main>
     </div>
   );
 }
