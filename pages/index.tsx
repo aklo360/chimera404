@@ -265,7 +265,7 @@ export default function Home() {
         </Head>
 
         {/* Content Container with Vignette */}
-        <div className="relative w-full min-h-screen">
+        <div className="relative w-full min-h-screen flex flex-col">
           {/* Fixed Wavy Background that stays throughout the page */}
           <div className="fixed inset-0 w-full h-full">
             <WavyBackground className="w-full h-full" />
@@ -273,7 +273,7 @@ export default function Home() {
           </div>
 
           {/* Content */}
-          <div className="relative z-10">
+          <div className="relative z-10 flex-1 flex flex-col">
             <Header
               unisatConnectWallet={unisatConnectWallet}
               paymentAddress={paymentAddress}
@@ -287,10 +287,10 @@ export default function Home() {
             />
 
             {/* Centered Module Container */}
-            <div className="w-full min-h-screen flex items-center justify-center px-4">
-              <div className="relative">
+            <div className="flex-1 flex items-center justify-center px-4">
+              <div className="w-full max-w-[1280px] flex flex-col items-center py-8">
                 <motion.div
-                  className="w-full max-w-[1280px] bg-black/60 backdrop-blur-md rounded-2xl overflow-hidden border border-white/[0.1]"
+                  className="w-full bg-black/60 backdrop-blur-md rounded-2xl overflow-hidden border border-white/[0.1]"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
@@ -321,7 +321,7 @@ export default function Home() {
                     </div>
 
                     {/* Minting Info */}
-                    <div className="w-full md:w-1/2 p-8 flex flex-col justify-between">
+                    <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between">
                       <div>
                         <h2 className="text-2xl font-bold text-white mb-6">
                           CHIMERA GENESIS ◉▣
@@ -460,7 +460,7 @@ export default function Home() {
 
                 {/* Next Button - Positioned relative to the modal */}
                 <motion.div
-                  className="absolute left-1/2 transform -translate-x-1/2 mt-8"
+                  className="mt-4"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
@@ -666,26 +666,26 @@ export default function Home() {
               )}
             </AnimatePresence>
           </div>
+
+          {/* Footer positioned at bottom */}
+          <Footer />
         </div>
 
-        {/* Add Footer component */}
-        <Footer />
+        {/* Add this to your existing styles or create a new style tag in your document head */}
+        <style jsx global>{`
+          @keyframes gradient {
+            0% {
+              background-position: 0% 50%;
+            }
+            50% {
+              background-position: 100% 50%;
+            }
+            100% {
+              background-position: 0% 50%;
+            }
+          }
+        `}</style>
       </main>
-
-      {/* Add this to your existing styles or create a new style tag in your document head */}
-      <style jsx global>{`
-        @keyframes gradient {
-          0% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
-        }
-      `}</style>
     </div>
   );
 }
