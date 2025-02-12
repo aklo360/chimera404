@@ -328,7 +328,7 @@ export default function HybridSwap() {
 
             {/* Centered Module Container */}
             <div className="flex-1 flex items-center justify-center px-4">
-              <div className="w-full max-w-[1280px] flex flex-col items-center py-8">
+              <div className="w-full max-w-[1280px] flex flex-col items-center py-4 scale-[0.85] origin-center">
                 <motion.div
                   className="w-full bg-black/60 backdrop-blur-md rounded-2xl overflow-hidden border border-white/[0.1]"
                   initial={{ opacity: 0, y: 20 }}
