@@ -42,6 +42,7 @@ export default function Home() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [mintedCount, setMintedCount] = useState(0);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [wlTimeRemaining, setWlTimeRemaining] = useState("");
   const totalSupply = 2000;
   const [isMinting, setIsMinting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -62,8 +63,38 @@ export default function Home() {
       );
     }, 5000);
 
+    // Set up WL phase timer
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + 1);
+    targetDate.setHours(12, 0, 0, 0); // Set to 12pm tomorrow
+
+    const updateTimer = () => {
+      const now = new Date();
+      const diff = targetDate.getTime() - now.getTime();
+      
+      if (diff <= 0) {
+        setWlTimeRemaining("00:00:00");
+        return;
+      }
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setWlTimeRemaining(
+        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+      );
+    };
+
+    // Initial update
+    updateTimer();
+    
+    // Update timer every second
+    const timerInterval = setInterval(updateTimer, 1000);
+
     return () => {
       clearInterval(imageInterval);
+      clearInterval(timerInterval);
     };
   }, []);
 
@@ -313,12 +344,9 @@ export default function Home() {
                           <div>
                             <div className="flex justify-between text-sm text-gray-300 mb-2">
                               <span>
-                                WL Phase{" "}
-                                <span className="text-gray-500 ml-2">
-                                  Max 10 per wallet
-                                </span>
+                                WL Phase <span className="text-gray-500 ml-2">Max 2 per wallet</span>
                               </span>
-                              <span>24:00:00</span>
+                              <span>{wlTimeRemaining}</span>
                             </div>
                             <div className="w-full h-2 bg-black rounded-full overflow-hidden">
                               <motion.div
@@ -334,10 +362,7 @@ export default function Home() {
                           <div>
                             <div className="flex justify-between text-sm text-gray-300 mb-2">
                               <span>
-                                Public Phase{" "}
-                                <span className="text-gray-500 ml-2">
-                                  Max 5 per wallet
-                                </span>
+                                Public Phase <span className="text-gray-500 ml-2">Max 1 per wallet</span>
                               </span>
                               <span>24:00:00</span>
                             </div>
