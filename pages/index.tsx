@@ -66,59 +66,57 @@ export default function Home() {
       );
     }, 5000);
 
-    // Set up WL phase timer
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + 1);
-    targetDate.setHours(12, 0, 0, 0); // Set to 12pm tomorrow
-
-    const publicStartDate = new Date(targetDate); // WL end is public start
-    const publicEndDate = new Date(publicStartDate);
-    publicEndDate.setHours(publicEndDate.getHours() + 24); // Public phase lasts 24 hours
-
     const updateTimer = () => {
       const now = new Date();
-      const wlDiff = targetDate.getTime() - now.getTime();
-      const publicDiff = publicEndDate.getTime() - now.getTime();
       
-      // Calculate WL progress (0% at start, 100% at end)
-      const totalWLDuration = 24 * 60 * 60 * 1000; // 24 hours in ms
-      const elapsedWLTime = totalWLDuration - wlDiff;
-      const wlProgressPercent = Math.min(100, Math.max(0, (elapsedWLTime / totalWLDuration) * 100));
-      setWlProgress(wlProgressPercent);
+      // Convert all times to UTC to avoid timezone issues
+      const wlEndDate = new Date(Date.UTC(2025, 1, 13, 18, 0, 0)); // Feb 13, 2025, 1 PM EST = 18:00 UTC
+      const wlStartDate = new Date(Date.UTC(2025, 1, 12, 18, 0, 0)); // Feb 12, 2025, 1 PM EST = 18:00 UTC
+      const publicEndDate = new Date(Date.UTC(2025, 1, 14, 18, 0, 0)); // Feb 14, 2025, 1 PM EST = 18:00 UTC
 
-      // Calculate Public phase progress
-      if (wlDiff <= 0) {
-        const totalPublicDuration = 24 * 60 * 60 * 1000; // 24 hours in ms
-        const remainingPublicTime = publicEndDate.getTime() - now.getTime();
-        const elapsedPublicTime = totalPublicDuration - remainingPublicTime;
-        const publicProgressPercent = Math.min(100, Math.max(0, (elapsedPublicTime / totalPublicDuration) * 100));
-        setPublicProgress(publicProgressPercent);
-      }
-      
-      if (wlDiff <= 0) {
-        setWlTimeRemaining("00:00:00");
+      // Calculate time differences in milliseconds
+      const wlTimeLeft = wlEndDate.getTime() - now.getTime();
+      const publicTimeLeft = publicEndDate.getTime() - now.getTime();
+      const wlTotalDuration = wlEndDate.getTime() - wlStartDate.getTime();
+      const wlElapsed = now.getTime() - wlStartDate.getTime();
+
+      // Calculate WL progress percentage
+      const wlProgressPercent = Math.min(100, Math.max(0, (wlElapsed / wlTotalDuration) * 100));
+
+      // Format time remaining
+      const formatTimeRemaining = (timeLeft: number): string => {
+        if (timeLeft <= 0) return "00:00:00";
+        const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      };
+
+      // Update WL phase
+      if (wlTimeLeft > 0) {
+        setWlTimeRemaining(formatTimeRemaining(wlTimeLeft));
+        setWlProgress(wlProgressPercent);
+        setPublicProgress(0);
+        setPublicTimeRemaining('24:00:00');
+      } 
+      // Update Public phase
+      else if (publicTimeLeft > 0) {
+        setWlTimeRemaining('00:00:00');
+        setWlProgress(100);
+        setPublicTimeRemaining(formatTimeRemaining(publicTimeLeft));
         
-        // If WL phase is over, show public phase countdown
-        if (publicDiff > 0) {
-          const hours = Math.floor(publicDiff / (1000 * 60 * 60));
-          const minutes = Math.floor((publicDiff % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((publicDiff % (1000 * 60)) / 1000);
-          setPublicTimeRemaining(
-            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-          );
-        } else {
-          setPublicTimeRemaining("00:00:00");
-        }
-        return;
+        const publicElapsed = now.getTime() - wlEndDate.getTime();
+        const publicTotalDuration = publicEndDate.getTime() - wlEndDate.getTime();
+        const publicProgressPercent = Math.min(100, Math.max(0, (publicElapsed / publicTotalDuration) * 100));
+        setPublicProgress(publicProgressPercent);
+      } 
+      // Both phases complete
+      else {
+        setWlTimeRemaining('00:00:00');
+        setPublicTimeRemaining('00:00:00');
+        setWlProgress(100);
+        setPublicProgress(100);
       }
-
-      const hours = Math.floor(wlDiff / (1000 * 60 * 60));
-      const minutes = Math.floor((wlDiff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((wlDiff % (1000 * 60)) / 1000);
-
-      setWlTimeRemaining(
-        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-      );
     };
 
     // Initial update
