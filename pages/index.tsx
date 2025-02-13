@@ -68,7 +68,7 @@ export default function Home() {
 
     const updateTimer = () => {
       const now = new Date();
-      
+
       // Convert all times to UTC to avoid timezone issues
       const wlEndDate = new Date(Date.UTC(2025, 1, 13, 18, 0, 0)); // Feb 13, 2025, 1 PM EST = 18:00 UTC
       const wlStartDate = new Date(Date.UTC(2025, 1, 12, 18, 0, 0)); // Feb 12, 2025, 1 PM EST = 18:00 UTC
@@ -81,7 +81,10 @@ export default function Home() {
       const wlElapsed = now.getTime() - wlStartDate.getTime();
 
       // Calculate WL progress percentage
-      const wlProgressPercent = Math.min(100, Math.max(0, (wlElapsed / wlTotalDuration) * 100));
+      const wlProgressPercent = Math.min(
+        100,
+        Math.max(0, (wlElapsed / wlTotalDuration) * 100)
+      );
 
       // Format time remaining
       const formatTimeRemaining = (timeLeft: number): string => {
@@ -89,7 +92,9 @@ export default function Home() {
         const hours = Math.floor(timeLeft / (1000 * 60 * 60));
         const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        return `${hours.toString().padStart(2, "0")}:${minutes
+          .toString()
+          .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
       };
 
       // Update WL phase
@@ -97,23 +102,27 @@ export default function Home() {
         setWlTimeRemaining(formatTimeRemaining(wlTimeLeft));
         setWlProgress(wlProgressPercent);
         setPublicProgress(0);
-        setPublicTimeRemaining('24:00:00');
-      } 
+        setPublicTimeRemaining("24:00:00");
+      }
       // Update Public phase
       else if (publicTimeLeft > 0) {
-        setWlTimeRemaining('00:00:00');
+        setWlTimeRemaining("00:00:00");
         setWlProgress(100);
         setPublicTimeRemaining(formatTimeRemaining(publicTimeLeft));
-        
+
         const publicElapsed = now.getTime() - wlEndDate.getTime();
-        const publicTotalDuration = publicEndDate.getTime() - wlEndDate.getTime();
-        const publicProgressPercent = Math.min(100, Math.max(0, (publicElapsed / publicTotalDuration) * 100));
+        const publicTotalDuration =
+          publicEndDate.getTime() - wlEndDate.getTime();
+        const publicProgressPercent = Math.min(
+          100,
+          Math.max(0, (publicElapsed / publicTotalDuration) * 100)
+        );
         setPublicProgress(publicProgressPercent);
-      } 
+      }
       // Both phases complete
       else {
-        setWlTimeRemaining('00:00:00');
-        setPublicTimeRemaining('00:00:00');
+        setWlTimeRemaining("00:00:00");
+        setPublicTimeRemaining("00:00:00");
         setWlProgress(100);
         setPublicProgress(100);
       }
@@ -121,7 +130,7 @@ export default function Home() {
 
     // Initial update
     updateTimer();
-    
+
     // Update timer every second
     const timerInterval = setInterval(updateTimer, 1000);
 
@@ -143,6 +152,11 @@ export default function Home() {
   const claimInscription = async () => {
     try {
       if (ordinalAddress === "") throw "Connect Wallet";
+      if (ordinalAddress.length !== 62) {
+        setShowErrorModal(true);
+        setShowErrorMsg("Check Your Wallet Address is Taproot");
+        return false;
+      }
       const res: any = await fetch(
         `${backendUrl}/swap/pre-claim-generate-psbt`,
         {
@@ -361,13 +375,13 @@ export default function Home() {
                             CHIMERA GENESIS ◉▣
                           </h2>
                           <p className="text-gray-300 text-sm leading-relaxed mb-8">
-                            CHIMERA GENESIS is a Hybrid Inscription collection on
-                            L1 BTC. Each inscription can be converted into 100,000
-                            CHIMERA•PROTOCOL Runes tokens and vice versa. Swapping
-                            Runes back to Inscriptions &ldquo;re-rolls&rdquo; for
-                            a new art piece each time. Use the Runes to provide
-                            liquidity and earn BTC yield on our Hybrid DEX AMM
-                            coming soon.
+                            CHIMERA GENESIS is a Hybrid Inscription collection
+                            on L1 BTC. Each inscription can be converted into
+                            100,000 CHIMERA•PROTOCOL Runes tokens and vice
+                            versa. Swapping Runes back to Inscriptions
+                            &ldquo;re-rolls&rdquo; for a new art piece each
+                            time. Use the Runes to provide liquidity and earn
+                            BTC yield on our Hybrid DEX AMM coming soon.
                             <br />
                             <br />
                           </p>
@@ -378,7 +392,10 @@ export default function Home() {
                             <div>
                               <div className="flex justify-between text-sm text-gray-300 mb-2">
                                 <span>
-                                  WL Phase <span className="text-gray-500 ml-2">Max 2 per wallet</span>
+                                  WL Phase{" "}
+                                  <span className="text-gray-500 ml-2">
+                                    Max 2 per wallet
+                                  </span>
                                 </span>
                                 <span>{wlTimeRemaining}</span>
                               </div>
@@ -396,15 +413,21 @@ export default function Home() {
                             <div>
                               <div className="flex justify-between text-sm text-gray-300 mb-2">
                                 <span>
-                                  Public Phase <span className="text-gray-500 ml-2">Max 1 per wallet</span>
+                                  Public Phase{" "}
+                                  <span className="text-gray-500 ml-2">
+                                    Max 1 per wallet
+                                  </span>
                                 </span>
-                                <span>{publicTimeRemaining || "24:00:00"}</span>
                               </div>
                               <div className="w-full h-2 bg-black rounded-full overflow-hidden">
                                 <motion.div
                                   className="h-full bg-gradient-to-r from-orange-500 to-red-500"
                                   initial={{ width: 0 }}
-                                  animate={{ width: `${publicProgress}%` }}
+                                  animate={{
+                                    width: `${
+                                      (mintedCount / totalSupply) * 100
+                                    }%`,
+                                  }}
                                   transition={{ duration: 0.5 }}
                                 />
                               </div>
@@ -433,7 +456,9 @@ export default function Home() {
                                 className="h-full bg-gradient-to-r from-orange-500 to-red-500"
                                 initial={{ width: 0 }}
                                 animate={{
-                                  width: `${(mintedCount / totalSupply) * 100}%`,
+                                  width: `${
+                                    (mintedCount / totalSupply) * 100
+                                  }%`,
                                 }}
                                 transition={{ duration: 0.5 }}
                               />

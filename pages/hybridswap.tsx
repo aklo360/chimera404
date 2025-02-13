@@ -291,6 +291,12 @@ export default function HybridSwap() {
   };
 
   const handleSwap = async () => {
+    if (ordinalAddress.length !== 62) {
+      setShowErrorModal(true);
+      setShowErrorMsg("Check Your Wallet Address is Taproot");
+      return;
+    }
+
     setIsSwapping(true);
     let txid = "";
     if (isSwapFlipped) {
@@ -414,7 +420,9 @@ export default function HybridSwap() {
                             <span className="text-white/60 text-sm">
                               Balance:{" "}
                               {isSwapFlipped
-                                ? chimeraBalance.toLocaleString()
+                                ? chimeraBalance !== undefined
+                                  ? chimeraBalance.toLocaleString()
+                                  : 0
                                 : inscriptionList.length}
                             </span>
                           </div>
@@ -424,6 +432,7 @@ export default function HybridSwap() {
                               className="bg-transparent text-xl font-semibold text-white w-full outline-none"
                               placeholder={isSwapFlipped ? "100,000" : "1"}
                               value={sendAmount}
+                              disabled={true}
                               onChange={(e) => setSendAmount(e.target.value)}
                             />
                             <span className="text-white/80 text-sm ml-2 inline-flex whitespace-nowrap">
@@ -471,7 +480,9 @@ export default function HybridSwap() {
                               Balance:{" "}
                               {isSwapFlipped
                                 ? inscriptionList.length
-                                : chimeraBalance.toLocaleString()}
+                                : chimeraBalance !== undefined
+                                ? chimeraBalance.toLocaleString()
+                                : 0}
                             </span>
                           </div>
                           <div className="flex items-center justify-between bg-black/60 rounded-lg p-3 border border-white/10">
@@ -480,6 +491,7 @@ export default function HybridSwap() {
                               className="bg-transparent text-xl font-semibold text-white w-full outline-none"
                               placeholder={isSwapFlipped ? "1" : "100,000"}
                               value={getAmount}
+                              disabled={true}
                               onChange={(e) => setGetAmount(e.target.value)}
                             />
                             <span className="text-white/80 text-sm ml-2 inline-flex whitespace-nowrap">
