@@ -416,12 +416,13 @@ export default function Home() {
                         <div className="mt-auto">
                           {/* Mint Progress */}
                           <div className="mb-4">
+                          <div className="flex justify-between mb-4, mt-4">
                             <p className="text-[#FF6B00] text-sm opacity-80">
                               *You must wait for 1 block to confirm before
                               receiving and swapping your Inscriptions.
                             </p>
-                            <br />
-                            <div className="flex justify-between text-sm text-gray-300 mb-2">
+                            </div>
+                            <div className="flex justify-between text-sm text-gray-300 mb-2 mt-4">
                               <span>Progress</span>
                               <span>
                                 {mintedCount}/{totalSupply}
