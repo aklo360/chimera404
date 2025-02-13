@@ -43,6 +43,9 @@ export default function Home() {
   const [mintedCount, setMintedCount] = useState(0);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [wlTimeRemaining, setWlTimeRemaining] = useState("");
+  const [wlProgress, setWlProgress] = useState(0);
+  const [publicProgress, setPublicProgress] = useState(0);
+  const [publicTimeRemaining, setPublicTimeRemaining] = useState("");
   const totalSupply = 2000;
   const [isMinting, setIsMinting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -68,18 +71,50 @@ export default function Home() {
     targetDate.setDate(targetDate.getDate() + 1);
     targetDate.setHours(12, 0, 0, 0); // Set to 12pm tomorrow
 
+    const publicStartDate = new Date(targetDate); // WL end is public start
+    const publicEndDate = new Date(publicStartDate);
+    publicEndDate.setHours(publicEndDate.getHours() + 24); // Public phase lasts 24 hours
+
     const updateTimer = () => {
       const now = new Date();
-      const diff = targetDate.getTime() - now.getTime();
+      const wlDiff = targetDate.getTime() - now.getTime();
+      const publicDiff = publicEndDate.getTime() - now.getTime();
       
-      if (diff <= 0) {
+      // Calculate WL progress (0% at start, 100% at end)
+      const totalWLDuration = 24 * 60 * 60 * 1000; // 24 hours in ms
+      const elapsedWLTime = totalWLDuration - wlDiff;
+      const wlProgressPercent = Math.min(100, Math.max(0, (elapsedWLTime / totalWLDuration) * 100));
+      setWlProgress(wlProgressPercent);
+
+      // Calculate Public phase progress
+      if (wlDiff <= 0) {
+        const totalPublicDuration = 24 * 60 * 60 * 1000; // 24 hours in ms
+        const remainingPublicTime = publicEndDate.getTime() - now.getTime();
+        const elapsedPublicTime = totalPublicDuration - remainingPublicTime;
+        const publicProgressPercent = Math.min(100, Math.max(0, (elapsedPublicTime / totalPublicDuration) * 100));
+        setPublicProgress(publicProgressPercent);
+      }
+      
+      if (wlDiff <= 0) {
         setWlTimeRemaining("00:00:00");
+        
+        // If WL phase is over, show public phase countdown
+        if (publicDiff > 0) {
+          const hours = Math.floor(publicDiff / (1000 * 60 * 60));
+          const minutes = Math.floor((publicDiff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((publicDiff % (1000 * 60)) / 1000);
+          setPublicTimeRemaining(
+            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+          );
+        } else {
+          setPublicTimeRemaining("00:00:00");
+        }
         return;
       }
 
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      const hours = Math.floor(wlDiff / (1000 * 60 * 60));
+      const minutes = Math.floor((wlDiff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((wlDiff % (1000 * 60)) / 1000);
 
       setWlTimeRemaining(
         `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
@@ -353,7 +388,7 @@ export default function Home() {
                                 <motion.div
                                   className="h-full bg-gradient-to-r from-orange-500 to-red-500"
                                   initial={{ width: 0 }}
-                                  animate={{ width: "0%" }}
+                                  animate={{ width: `${wlProgress}%` }}
                                   transition={{ duration: 0.5 }}
                                 />
                               </div>
@@ -365,13 +400,13 @@ export default function Home() {
                                 <span>
                                   Public Phase <span className="text-gray-500 ml-2">Max 1 per wallet</span>
                                 </span>
-                                <span>24:00:00</span>
+                                <span>{publicTimeRemaining || "24:00:00"}</span>
                               </div>
                               <div className="w-full h-2 bg-black rounded-full overflow-hidden">
                                 <motion.div
                                   className="h-full bg-gradient-to-r from-orange-500 to-red-500"
                                   initial={{ width: 0 }}
-                                  animate={{ width: "0%" }}
+                                  animate={{ width: `${publicProgress}%` }}
                                   transition={{ duration: 0.5 }}
                                 />
                               </div>
