@@ -213,7 +213,12 @@ export default function Home() {
         }
       );
 
-      const { txid } = await pushRes.json();
+      const { txid, error: afterError } = await pushRes.json();
+      if (afterError) {
+        setShowErrorModal(true);
+        setShowErrorMsg(afterError);
+        return false;
+      }
       console.log("Mint Txid => ", txid);
       setMintedImage(inscriptionUtxo.inscriptionId);
       return true;
@@ -439,11 +444,11 @@ export default function Home() {
                         <div className="mt-auto">
                           {/* Mint Progress */}
                           <div className="mb-4">
-                          <div className="flex justify-between mb-4, mt-4">
-                            <p className="text-[#FF6B00] text-sm opacity-80">
-                              *You must wait for 1 block to confirm before
-                              receiving and swapping your Inscriptions.
-                            </p>
+                            <div className="flex justify-between mb-4, mt-4">
+                              <p className="text-[#FF6B00] text-sm opacity-80">
+                                *You must wait for 1 block to confirm before
+                                receiving and swapping your Inscriptions.
+                              </p>
                             </div>
                             <div className="flex justify-between text-sm text-gray-300 mb-2 mt-4">
                               <span>Progress</span>
@@ -475,7 +480,8 @@ export default function Home() {
                               transition: { duration: 0.2 },
                             }}
                             whileTap={{ scale: 0.98 }}
-                            disabled={isMinting}
+                            // disabled={isMinting}
+                            disabled={true}
                           >
                             <div
                               className="absolute inset-0 rounded-lg bg-gradient-to-r from-[#FFA200] via-[#FF3000] to-[#FFA200]"
