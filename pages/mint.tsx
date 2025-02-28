@@ -3,6 +3,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
+import {
+  request,
+  AddressPurpose,
+  RpcErrorCode,
+  signMultipleTransactions,
+  BitcoinNetworkType,
+  SignPsbtParams,
+} from "sats-connect";
 import WavyBackground from "@/components/WavyBackground";
 import Footer from "@/components/Footer";
 import { FaTwitter } from "react-icons/fa";
@@ -56,6 +64,8 @@ export default function Home() {
   const [paymentPubkey, setPaymentPubkey] = useState("");
   const [ordinalAddress, setOrdinalAddress] = useState("");
   const [ordinalPubkey, setOrdinalPubkey] = useState("");
+  const [walletType, setWalletType] = useState("");
+  const [openWalletModal, setOpenWalletModal] = useState(false);
 
   useEffect(() => {
     fetchInscriptionCount();
@@ -253,17 +263,13 @@ export default function Home() {
     setIsMinting(false);
   };
 
-  const unisatConnectWallet = async () => {
+  const selectWalletConnect = async (walletType: number) => {
     try {
-      if (paymentAddress === "") {
+      if (walletType === 0) {
         const currentWindow: any = window;
         if (typeof currentWindow?.unisat !== "undefined") {
           const unisat: any = currentWindow?.unisat;
           try {
-            // const network = await unisat.getNetwork();
-            // if (network != "testnet") {
-            //   await unisat.switchNetwork("testnet");
-            // }
             const chain = await unisat.getChain();
             console.log(chain);
             if (chain.enum != "BITCOIN_TESTNET4")
@@ -280,15 +286,63 @@ export default function Home() {
             localStorage.setItem("paymentPubkey", tempPaymentPublicKey);
             localStorage.setItem("ordinalAddress", tempOrdinalAddress);
             localStorage.setItem("ordinalPubkey", tempOrdinalPublicKey);
-            localStorage.setItem("walletType", "Unisat");
+            localStorage.setItem("walletType", "unisat");
             setPaymentAddress(tempPaymentAddress);
             setPaymentPubkey(tempPaymentPublicKey);
             setOrdinalAddress(tempOrdinalAddress);
             setOrdinalPubkey(tempOrdinalPublicKey);
           } catch (e) {
-            throw "Connection Failed";
+            setShowErrorModal(true);
+            setShowErrorMsg("Unisat Wallet Connection Failed");
+            throw "Unisat Wallet Connection Failed";
           }
         }
+      } else if (walletType === 1) {
+        const response = await request("wallet_connect", null);
+        if (response.status === "success") {
+          const paymentAddressItem: any = response.result.addresses.find(
+            (address) => address.purpose === AddressPurpose.Payment
+          );
+          const ordinalsAddressItem: any = response.result.addresses.find(
+            (address) => address.purpose === AddressPurpose.Ordinals
+          );
+
+          if (!paymentAddressItem.address.includes("tb1")) {
+            setShowErrorModal(true);
+            setShowErrorMsg("Invalid Network!");
+            throw "Invalid Network!";
+          }
+
+          localStorage.setItem("paymentAddress", paymentAddressItem.address);
+          localStorage.setItem("paymentPubkey", paymentAddressItem.publicKey);
+          localStorage.setItem("ordinalAddress", ordinalsAddressItem.address);
+          localStorage.setItem("ordinalPubkey", ordinalsAddressItem.publicKey);
+          localStorage.setItem("walletType", "xverse");
+          setPaymentAddress(paymentAddressItem.address);
+          setPaymentPubkey(paymentAddressItem.publicKey);
+          setOrdinalAddress(ordinalsAddressItem.address);
+          setOrdinalPubkey(ordinalsAddressItem.publicKey);
+        } else {
+          if (response.error.code === RpcErrorCode.USER_REJECTION) {
+            // handle user cancellation error
+          } else {
+            console.log(response.error);
+            setShowErrorModal(true);
+            setShowErrorMsg("XVerse Wallet Connection Failed!");
+            throw "XVerse Wallet Connection Failed";
+          }
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    setOpenWalletModal(false);
+  };
+
+  const connectWallet = async () => {
+    try {
+      if (paymentAddress === "") {
+        setOpenWalletModal(true);
       } else {
         localStorage.setItem("walletType", "");
         localStorage.setItem("paymentAddress", "");
@@ -300,8 +354,10 @@ export default function Home() {
         setOrdinalAddress("");
         setOrdinalPubkey("");
       }
-    } catch (error) {
-      console.log("unisatConnectWallet error ==> ", error);
+    } catch (error: any) {
+      console.log(error);
+      setShowErrorModal(true);
+      setShowErrorMsg(error);
     }
   };
 
@@ -327,7 +383,8 @@ export default function Home() {
           {/* Content */}
           <div className="relative z-10 flex-1 flex flex-col">
             <Header
-              unisatConnectWallet={unisatConnectWallet}
+              connectWallet={connectWallet}
+              selectWalletConnect={selectWalletConnect}
               paymentAddress={paymentAddress}
               setPaymentAddress={setPaymentAddress}
               ordinalAddress={ordinalAddress}
@@ -336,6 +393,10 @@ export default function Home() {
               setPaymentPubkey={setPaymentPubkey}
               ordinalPubkey={ordinalPubkey}
               setOrdinalPubkey={setOrdinalPubkey}
+              walletType={walletType}
+              setWalletType={setWalletType}
+              openWalletModal={openWalletModal}
+              setOpenWalletModal={setOpenWalletModal}
             />
 
             {/* Centered Module Container */}
@@ -471,9 +532,9 @@ export default function Home() {
                           </div>
 
                           <motion.button
-                            onClick={
-                              ordinalAddress ? handleMint : unisatConnectWallet
-                            }
+                            onClick={() => {
+                              ordinalAddress && handleMint();
+                            }}
                             className="relative w-full px-6 py-3 text-lg font-semibold text-white rounded-lg"
                             whileHover={{
                               scale: 1.02,
@@ -738,21 +799,6 @@ export default function Home() {
           {/* Footer positioned at bottom */}
           <Footer />
         </div>
-
-        {/* Add this to your existing styles or create a new style tag in your document head */}
-        <style jsx global>{`
-          @keyframes gradient {
-            0% {
-              background-position: 0% 50%;
-            }
-            50% {
-              background-position: 100% 50%;
-            }
-            100% {
-              background-position: 0% 50%;
-            }
-          }
-        `}</style>
       </main>
     </div>
   );
