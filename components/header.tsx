@@ -82,6 +82,7 @@ export default function Header(props: IHeader) {
                 </div>
               </div>
               <Link href="/lp" className="text-white/80 hover:text-white transition-colors">LP</Link>
+              <Link href="/etf" className="text-white/80 hover:text-white transition-colors">ETF</Link>
               <Link href="/mint" className="text-white/80 hover:text-white transition-colors">Mint</Link>
             </div>
           </motion.div>
