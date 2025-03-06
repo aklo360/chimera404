@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 // Update the gradient animation constant
 const gradientAnimation = {
@@ -53,6 +54,7 @@ export default function Header(props: IHeader) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex items-center"
           >
             <Image
               src="/chimera-wide.svg"
@@ -61,6 +63,27 @@ export default function Header(props: IHeader) {
               height={40}
               className="h-8 w-auto"
             />
+            
+            {/* Navigation Links */}
+            <div className="hidden md:flex ml-10 space-x-6">
+              <div className="relative group">
+                <button 
+                  className="text-white/80 hover:text-white transition-colors flex items-center"
+                >
+                  Swap
+                </button>
+                <div className="absolute top-full left-0 mt-1 bg-black/90 backdrop-blur-md rounded-lg border border-white/10 overflow-hidden w-32 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <Link href="/" className="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition-colors">
+                    Hybrid
+                  </Link>
+                  <Link href="/swap" className="block px-4 py-2 text-white/80 hover:text-white hover:bg-white/10 transition-colors">
+                    Token
+                  </Link>
+                </div>
+              </div>
+              <Link href="/lp" className="text-white/80 hover:text-white transition-colors">LP</Link>
+              <Link href="/mint" className="text-white/80 hover:text-white transition-colors">Mint</Link>
+            </div>
           </motion.div>
 
           <motion.div

@@ -27,17 +27,18 @@ const gradientAnimation = {
   animation: "gradient 4s linear infinite",
 };
 
-export default function HybridSwap() {
+export default function ChimeraSwap() {
   // const backendUrl = "https://api.chimera.finance/api";
   const backendUrl = "http://localhost:8001/api";
 
   const [isSwapFlipped, setIsSwapFlipped] = useState(false);
-  const [sendAmount, setSendAmount] = useState<string>("1");
-  const [getAmount, setGetAmount] = useState<string>("100,000");
+  const [sendAmount, setSendAmount] = useState<string>("");
+  const [getAmount, setGetAmount] = useState<string>("");
   const [selectedImage, setSelectedImage] = useState<number>(0);
   const [isSwapping, setIsSwapping] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [chimeraBalance, setChimeraBalance] = useState<number>(0);
+  const [btc10Balance, setBtc10Balance] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [paymentAddress, setPaymentAddress] = useState("");
   const [paymentPubkey, setPaymentPubkey] = useState("");
@@ -52,6 +53,8 @@ export default function HybridSwap() {
   const [errorMsg, setShowErrorMsg] = useState("");
   const [openWalletModal, setOpenWalletModal] = useState(false);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [selectedBuyToken, setSelectedBuyToken] = useState<string>("CHIMERA");
+  const [slippageTolerance, setSlippageTolerance] = useState<string>("0.3");
   const [transactionSpeed, setTransactionSpeed] = useState<string>("fast");
   const [customFeeRate, setCustomFeeRate] = useState<string>("");
   const [showCustomFee, setShowCustomFee] = useState(false);
@@ -164,8 +167,10 @@ export default function HybridSwap() {
     const tempSend = sendAmount;
     setSendAmount(getAmount);
     setGetAmount(tempSend);
-    // Set image selection based on swap direction
-    setSelectedImage(!isSwapFlipped ? -1 : 0);
+  };
+
+  const handleTokenChange = (token: string) => {
+    setSelectedBuyToken(token);
   };
 
   const handleImageSelect = (index: number) => {
@@ -486,7 +491,7 @@ export default function HybridSwap() {
         className={`flex min-h-screen flex-col items-center ${inter.className} overflow-x-hidden`}
       >
         <Head>
-          <title>CHIMERA BTC - Hybrid Swap</title>
+          <title>CHIMERA BTC - Token Swap</title>
           <link rel="icon" href="/chimera-icon.svg" />
         </Head>
 
@@ -519,95 +524,57 @@ export default function HybridSwap() {
 
             {/* Centered Module Container */}
             <div className="flex-1 flex items-center justify-center px-4">
-              <div className="w-full max-w-[1280px] flex flex-col items-center py-4 scale-[0.85] origin-center">
+              <div className="w-full max-w-[1280px] flex flex-col items-center py-4">
                 <motion.div
-                  className="w-full bg-black/60 backdrop-blur-md rounded-2xl overflow-hidden border border-white/[0.1]"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <div className="flex flex-col md:flex-row gap-6 p-6 md:p-8">
-                    {/* Left Column - Image Grid */}
-                    <div className="w-full md:w-1/2 flex items-center">
-                      <div className="w-full">
-                        <h2 className="text-xl font-medium text-white mb-3 text-center">
-                          Your Inscriptions
-                        </h2>
-                        <div className="bg-black/80 backdrop-blur-md rounded-xl p-4 h-[500px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-white/[0.07] hover:[&::-webkit-scrollbar-thumb]:bg-white/[0.15] [&::-webkit-scrollbar-track]:bg-transparent border border-white/[0.12]">
-                          {inscriptionList.length > 0 ? (
-                            <div className="grid grid-cols-2 gap-4">
-                              {inscriptionList.map(
-                                (image: string, index: number) => (
-                                  <div
-                                    key={index}
-                                    className={`relative aspect-square rounded-lg overflow-hidden cursor-pointer transition-all duration-200 ${
-                                      selectedImage === index && !isSwapFlipped
-                                        ? "ring-2 ring-[#FF6B00] ring-offset-1 ring-offset-black/80"
-                                        : ""
-                                    }`}
-                                    onClick={() => handleImageSelect(index)}
-                                    onDoubleClick={() => {
-                                      setSelectedModalImage(image);
-                                      setIsImageModalOpen(true);
-                                    }}
-                                  >
-                                    <Image
-                                      src={`https://static-testnet4.unisat.io/content/${image}`}
-                                      alt={`Inscription ${index + 1}`}
-                                      fill
-                                      className={`object-cover transition-transform duration-300 ${
-                                        selectedImage === index
-                                          ? "scale-105"
-                                          : "hover:scale-105"
-                                      }`}
-                                    />
-                                  </div>
-                                )
-                              )}
-                            </div>
-                          ) : (
-                            <div className="h-full flex items-center justify-center">
-                              <p className="text-gray-400 text-center">
-                                No Inscriptions found from the CHIMERA GENESIS
-                                collection.
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right Column - Swap Module */}
-                    <div className="w-full md:w-1/2 flex items-center justify-center">
-                      <div className="w-full max-w-[400px] bg-black/95 backdrop-blur-md rounded-xl p-6 border border-white/[0.12]">
-                        <div className="mb-4">
-                          <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-base font-medium text-white">
-                              You Send:
-                            </h2>
-                            <span className="text-white/60 text-sm">
-                              Balance:{" "}
-                              {isSwapFlipped
+                  <div className="flex flex-col items-center justify-center p-6 md:p-8">
+                    {/* Centered Swap Module */}
+                    <div className="w-full max-w-[400px] bg-black/95 backdrop-blur-md rounded-xl p-6 border border-white/[0.12]">
+                      <div className="mb-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <h2 className="text-base font-medium text-white">
+                            Sell:
+                          </h2>
+                          <span className="text-white/60 text-sm">
+                            Balance: {isSwapFlipped 
+                              ? selectedBuyToken === "CHIMERA"
                                 ? chimeraBalance !== undefined
                                   ? chimeraBalance.toLocaleString()
                                   : 0
-                                : inscriptionList.length}
-                            </span>
-                          </div>
+                                : btc10Balance !== undefined
+                                  ? btc10Balance.toLocaleString()
+                                  : 0
+                              : "0.05 tBTC"}
+                          </span>
+                        </div>
+                        <div className="flex flex-col space-y-2">
                           <div className="flex items-center justify-between bg-black/60 rounded-lg p-3 border border-white/10">
                             <input
                               type="text"
                               className="bg-transparent text-xl font-semibold text-white w-full outline-none"
-                              placeholder={isSwapFlipped ? "100,000" : "1"}
+                              placeholder="0.00"
                               value={sendAmount}
-                              disabled={true}
                               onChange={(e) => setSendAmount(e.target.value)}
                             />
-                            <span className="text-white/80 text-sm ml-2 inline-flex whitespace-nowrap">
-                              {isSwapFlipped
-                                ? "CHIMERA•PROTOCOL ▣"
-                                : "INSCRIPTION ◉"}
-                            </span>
+                            {isSwapFlipped ? (
+                              <div className="flex items-center">
+                                <select
+                                  className="text-white/80 text-sm ml-2 inline-flex items-center whitespace-nowrap bg-white/10 px-3 py-1 rounded-lg appearance-none cursor-pointer"
+                                  value={selectedBuyToken}
+                                  onChange={(e) => handleTokenChange(e.target.value)}
+                                >
+                                  <option value="CHIMERA">CHIMERA•PROTOCOL ▣</option>
+                                  <option value="BTC10">BTC•TEN•ETF•TOKEN ▣</option>
+                                </select>
+                              </div>
+                            ) : (
+                              <div className="text-white/80 text-sm ml-2 inline-flex items-center whitespace-nowrap bg-white/10 px-3 py-1 rounded-lg">
+                                tBTC ₿
+                              </div>
+                            )}
                           </div>
                           <div className="flex justify-end space-x-3 mt-2 mr-1">
                             <button className="text-white/60 hover:text-white text-xs transition-colors px-1">
@@ -618,258 +585,281 @@ export default function HybridSwap() {
                             </button>
                           </div>
                         </div>
+                      </div>
 
-                        {/* Swap Direction Button */}
-                        <div className="relative h-12 flex items-center justify-center">
-                          <motion.button
-                            onClick={handleSwapDirection}
-                            className="absolute text-white/80 hover:text-white transition-colors bg-black/80 p-2 rounded-full border border-white/10"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.95 }}
+                      {/* Swap Direction Button */}
+                      <div className="relative h-12 flex items-center justify-center">
+                        <motion.button
+                          onClick={handleSwapDirection}
+                          className="absolute text-white/80 hover:text-white transition-colors bg-black/80 p-2 rounded-full border border-white/10"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="tabler-icon tabler-icon-switch-vertical w-5 h-5 mx-auto z-50"
                           >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="tabler-icon tabler-icon-switch-vertical w-5 h-5 mx-auto z-50"
-                            >
-                              <path d="M3 8l4 -4l4 4"></path>
-                              <path d="M7 4l0 9"></path>
-                              <path d="M13 16l4 4l4 -4"></path>
-                              <path d="M17 10l0 10"></path>
-                            </svg>
-                          </motion.button>
-                        </div>
+                            <path d="M3 8l4 -4l4 4"></path>
+                            <path d="M7 4l0 9"></path>
+                            <path d="M13 16l4 4l4 -4"></path>
+                            <path d="M17 10l0 10"></path>
+                          </svg>
+                        </motion.button>
+                      </div>
 
-                        <div className="mb-8">
-                          <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-base font-medium text-white">
-                              You Get:
-                            </h2>
-                            <span className="text-white/60 text-sm">
-                              Balance:{" "}
-                              {isSwapFlipped
-                                ? inscriptionList.length
-                                : chimeraBalance !== undefined
+                      <div className="mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h2 className="text-base font-medium text-white">
+                            Buy:
+                          </h2>
+                          <span className="text-white/60 text-sm">
+                            Balance:{" "}
+                            {isSwapFlipped
+                              ? "0.05 tBTC"
+                              : selectedBuyToken === "CHIMERA"
+                              ? chimeraBalance !== undefined
                                 ? chimeraBalance.toLocaleString()
-                                : 0}
-                            </span>
-                          </div>
+                                : 0
+                              : btc10Balance !== undefined
+                              ? btc10Balance.toLocaleString()
+                              : 0}
+                          </span>
+                        </div>
+                        <div className="flex flex-col space-y-2">
                           <div className="flex items-center justify-between bg-black/60 rounded-lg p-3 border border-white/10">
                             <input
                               type="text"
                               className="bg-transparent text-xl font-semibold text-white w-full outline-none"
-                              placeholder={isSwapFlipped ? "1" : "100,000"}
+                              placeholder="0.00"
                               value={getAmount}
-                              disabled={true}
                               onChange={(e) => setGetAmount(e.target.value)}
                             />
-                            <span className="text-white/80 text-sm ml-2 inline-flex whitespace-nowrap">
-                              {isSwapFlipped
-                                ? "INSCRIPTION ◉"
-                                : "CHIMERA•PROTOCOL ▣"}
-                            </span>
-                          </div>
-                        </div>
-
-                        <motion.button
-                          onClick={() => {
-                            ordinalAddress && handleSwap();
-                          }}
-                          className="relative w-full px-6 py-2.5 text-base font-semibold text-white rounded-lg"
-                          whileHover={{
-                            scale: 1.02,
-                            transition: { duration: 0.2 },
-                          }}
-                          whileTap={{ scale: 0.98 }}
-                          disabled={isSwapping}
-                        >
-                          <div
-                            className="absolute inset-0 rounded-lg bg-gradient-to-r from-[#FFA200] via-[#FF3000] to-[#FFA200]"
-                            style={gradientAnimation}
-                          />
-                          <div className="absolute inset-[1px] rounded-lg bg-black/95 backdrop-blur-sm" />
-                          <span className="relative z-10 flex items-center justify-center">
-                            {loading ? (
-                              <>
-                                <svg
-                                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <circle
-                                    className="opacity-25"
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
-                                    stroke="currentColor"
-                                    strokeWidth="4"
-                                  ></circle>
-                                  <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                  ></path>
-                                </svg>
-                                Loading...
-                              </>
-                            ) : isSwapping ? (
-                              <>
-                                <svg
-                                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <circle
-                                    className="opacity-25"
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
-                                    stroke="currentColor"
-                                    strokeWidth="4"
-                                  ></circle>
-                                  <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                  ></path>
-                                </svg>
-                                Swapping...
-                              </>
-                            ) : ordinalAddress ? (
-                              "Swap"
+                            {isSwapFlipped ? (
+                              <div className="text-white/80 text-sm ml-2 inline-flex items-center whitespace-nowrap bg-white/10 px-3 py-1 rounded-lg">
+                                tBTC ₿
+                              </div>
                             ) : (
-                              "Connect Wallet"
-                            )}
-                          </span>
-                        </motion.button>
-
-                        {/* Advanced Options Toggle */}
-                        <div className="mt-4">
-                          <button 
-                            onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
-                            className="text-white/70 hover:text-white text-sm flex items-center transition-colors"
-                          >
-                            <span>Advanced</span>
-                            <svg 
-                              xmlns="http://www.w3.org/2000/svg" 
-                              width="16" 
-                              height="16" 
-                              viewBox="0 0 24 24" 
-                              fill="none" 
-                              stroke="currentColor" 
-                              strokeWidth="2" 
-                              strokeLinecap="round" 
-                              strokeLinejoin="round"
-                              className={`ml-1 transition-transform duration-200 ${showAdvancedOptions ? 'rotate-180' : ''}`}
-                            >
-                              <polyline points="6 9 12 15 18 9"></polyline>
-                            </svg>
-                          </button>
-                        </div>
-                        
-                        {/* Advanced Options Section - Hidden by Default */}
-                        {showAdvancedOptions && (
-                          <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
-                            <h3 className="text-white font-medium mb-2 text-sm">Advanced</h3>
-                            <div className="flex items-center justify-between">
-                              <span className="text-white/70 text-xs">Transaction Speed</span>
-                              <div className="flex space-x-1">
-                                <button 
-                                  className={`px-2 py-1 text-xs rounded transition-colors ${
-                                    transactionSpeed === "normal" 
-                                      ? "bg-[#FF6B00]/20 text-[#FF6B00]" 
-                                      : "bg-white/10 hover:bg-white/20 text-white"
-                                  }`}
-                                  onClick={() => {
-                                    setTransactionSpeed("normal");
-                                    setShowCustomFee(false);
-                                  }}
+                              <div className="flex items-center">
+                                <select
+                                  className="text-white/80 text-sm ml-2 inline-flex items-center whitespace-nowrap bg-white/10 px-3 py-1 rounded-lg appearance-none cursor-pointer"
+                                  value={selectedBuyToken}
+                                  onChange={(e) => handleTokenChange(e.target.value)}
                                 >
-                                  Normal
-                                </button>
-                                <button 
-                                  className={`px-2 py-1 text-xs rounded transition-colors ${
-                                    transactionSpeed === "fast" 
-                                      ? "bg-[#FF6B00]/20 text-[#FF6B00]" 
-                                      : "bg-white/10 hover:bg-white/20 text-white"
-                                  }`}
-                                  onClick={() => {
-                                    setTransactionSpeed("fast");
-                                    setShowCustomFee(false);
-                                  }}
-                                >
-                                  Fast
-                                </button>
-                                <button 
-                                  className={`px-2 py-1 text-xs rounded transition-colors ${
-                                    transactionSpeed === "custom" 
-                                      ? "bg-[#FF6B00]/20 text-[#FF6B00]" 
-                                      : "bg-white/10 hover:bg-white/20 text-white"
-                                  }`}
-                                  onClick={() => {
-                                    setTransactionSpeed("custom");
-                                    setShowCustomFee(true);
-                                  }}
-                                >
-                                  Custom
-                                </button>
-                              </div>
-                            </div>
-                            {showCustomFee && (
-                              <div className="mt-2 flex items-center">
-                                <input
-                                  type="text"
-                                  className="bg-black/40 text-white text-xs p-1 rounded w-20 outline-none border border-white/10"
-                                  placeholder="10"
-                                  value={customFeeRate}
-                                  onChange={(e) => setCustomFeeRate(e.target.value)}
-                                />
-                                <span className="text-white/70 text-xs ml-2">sats/vB</span>
+                                  <option value="CHIMERA">CHIMERA•PROTOCOL ▣</option>
+                                  <option value="BTC10">BTC•TEN•ETF•TOKEN ▣</option>
+                                </select>
                               </div>
                             )}
                           </div>
-                        )}
+                        </div>
                       </div>
+                      
+                      {/* Advanced Options Toggle */}
+                      <div className="mb-4">
+                        <button 
+                          onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+                          className="text-white/70 hover:text-white text-sm flex items-center transition-colors"
+                        >
+                          <span>Advanced</span>
+                          <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            width="16" 
+                            height="16" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2" 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round"
+                            className={`ml-1 transition-transform duration-200 ${showAdvancedOptions ? 'rotate-180' : ''}`}
+                          >
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                          </svg>
+                        </button>
+                      </div>
+                      
+                      {/* Advanced Options Section - Hidden by Default */}
+                      {showAdvancedOptions && (
+                        <div className="mb-6 p-3 bg-white/5 rounded-lg border border-white/10">
+                          <h3 className="text-white font-medium mb-2 text-sm">Advanced</h3>
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-white/70 text-xs">Slippage Tolerance</span>
+                            <div className="flex space-x-1">
+                              <button 
+                                className={`px-2 py-1 text-xs rounded transition-colors ${
+                                  slippageTolerance === "0.3" 
+                                    ? "bg-[#FF6B00]/20 text-[#FF6B00]" 
+                                    : "bg-white/10 hover:bg-white/20 text-white"
+                                }`}
+                                onClick={() => setSlippageTolerance("0.3")}
+                              >
+                                0.3%
+                              </button>
+                              <button 
+                                className={`px-2 py-1 text-xs rounded transition-colors ${
+                                  slippageTolerance === "0.5" 
+                                    ? "bg-[#FF6B00]/20 text-[#FF6B00]" 
+                                    : "bg-white/10 hover:bg-white/20 text-white"
+                                }`}
+                                onClick={() => setSlippageTolerance("0.5")}
+                              >
+                                0.5%
+                              </button>
+                              <button 
+                                className={`px-2 py-1 text-xs rounded transition-colors ${
+                                  slippageTolerance === "1" 
+                                    ? "bg-[#FF6B00]/20 text-[#FF6B00]" 
+                                    : "bg-white/10 hover:bg-white/20 text-white"
+                                }`}
+                                onClick={() => setSlippageTolerance("1")}
+                              >
+                                1%
+                              </button>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-white/70 text-xs">Transaction Speed</span>
+                            <div className="flex space-x-1">
+                              <button 
+                                className={`px-2 py-1 text-xs rounded transition-colors ${
+                                  transactionSpeed === "normal" 
+                                    ? "bg-[#FF6B00]/20 text-[#FF6B00]" 
+                                    : "bg-white/10 hover:bg-white/20 text-white"
+                                }`}
+                                onClick={() => {
+                                  setTransactionSpeed("normal");
+                                  setShowCustomFee(false);
+                                }}
+                              >
+                                Normal
+                              </button>
+                              <button 
+                                className={`px-2 py-1 text-xs rounded transition-colors ${
+                                  transactionSpeed === "fast" 
+                                    ? "bg-[#FF6B00]/20 text-[#FF6B00]" 
+                                    : "bg-white/10 hover:bg-white/20 text-white"
+                                }`}
+                                onClick={() => {
+                                  setTransactionSpeed("fast");
+                                  setShowCustomFee(false);
+                                }}
+                              >
+                                Fast
+                              </button>
+                              <button 
+                                className={`px-2 py-1 text-xs rounded transition-colors ${
+                                  transactionSpeed === "custom" 
+                                    ? "bg-[#FF6B00]/20 text-[#FF6B00]" 
+                                    : "bg-white/10 hover:bg-white/20 text-white"
+                                }`}
+                                onClick={() => {
+                                  setTransactionSpeed("custom");
+                                  setShowCustomFee(true);
+                                }}
+                              >
+                                Custom
+                              </button>
+                            </div>
+                          </div>
+                          {showCustomFee && (
+                            <div className="mt-2 flex items-center">
+                              <input
+                                type="text"
+                                className="bg-black/40 text-white text-xs p-1 rounded w-20 outline-none border border-white/10"
+                                placeholder="10"
+                                value={customFeeRate}
+                                onChange={(e) => setCustomFeeRate(e.target.value)}
+                              />
+                              <span className="text-white/70 text-xs ml-2">sats/vB</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <motion.button
+                        onClick={() => {
+                          ordinalAddress && handleSwap();
+                        }}
+                        className="relative w-full px-6 py-2.5 text-base font-semibold text-white rounded-lg"
+                        whileHover={{
+                          scale: 1.02,
+                          transition: { duration: 0.2 },
+                        }}
+                        whileTap={{ scale: 0.98 }}
+                        disabled={isSwapping}
+                      >
+                        <div
+                          className="absolute inset-0 rounded-lg bg-gradient-to-r from-[#FFA200] via-[#FF3000] to-[#FFA200]"
+                          style={gradientAnimation}
+                        />
+                        <div className="absolute inset-[1px] rounded-lg bg-black/95 backdrop-blur-sm" />
+                        <span className="relative z-10 flex items-center justify-center">
+                          {loading ? (
+                            <>
+                              <svg
+                                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                ></circle>
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
+                              </svg>
+                              Loading...
+                            </>
+                          ) : isSwapping ? (
+                            <>
+                              <svg
+                                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                ></circle>
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
+                              </svg>
+                              Swapping...
+                            </>
+                          ) : ordinalAddress ? (
+                            "Swap"
+                          ) : (
+                            "Connect Wallet"
+                          )}
+                        </span>
+                      </motion.button>
                     </div>
                   </div>
                 </motion.div>
-
-                {/* Back Button - Positioned relative to the modal */}
-                {/* <motion.div
-                  className="mt-4"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                >
-                  <Link href="/mint">
-                    <motion.span
-                      className="text-white/80 hover:text-white text-lg font-medium cursor-pointer inline-block"
-                      initial={{ y: 0 }}
-                      animate={{
-                        y: [-4, 4, -4],
-                        scale: [1, 1.1, 1],
-                        opacity: [0.8, 1, 0.8],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        repeatType: "reverse",
-                        ease: "easeInOut",
-                      }}
-                    >
-                      Next →
-                    </motion.span>
-                  </Link>
-                </motion.div> */}
               </div>
             </div>
           </div>
@@ -928,8 +918,10 @@ export default function HybridSwap() {
                 <div className="mt-2">
                   <p className="text-white/60 text-base inline-flex whitespace-nowrap mb-2">
                     {isSwapFlipped
-                      ? `You received 1 INSCRIPTION ◉`
-                      : `You received 100,000 CHIMERA•PROTOCOL ▣`}
+                      ? `You received tBTC ₿`
+                      : selectedBuyToken === "CHIMERA"
+                      ? `You received CHIMERA•PROTOCOL ▣`
+                      : `You received BTC•TEN•ETF•TOKEN ▣`}
                   </p>
                   <a
                     href={broadcastTxId}

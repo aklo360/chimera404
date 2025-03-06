@@ -588,32 +588,7 @@ export default function Home() {
                 </motion.div>
 
                 {/* Next Button - Positioned relative to the modal */}
-                <motion.div
-                  className="mt-4"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                >
-                  <Link href="/">
-                    <motion.span
-                      className="text-white/80 hover:text-white text-lg font-medium cursor-pointer inline-block"
-                      initial={{ y: 0 }}
-                      animate={{
-                        y: [-4, 4, -4],
-                        scale: [1, 1.1, 1],
-                        opacity: [0.8, 1, 0.8],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        repeatType: "reverse",
-                        ease: "easeInOut",
-                      }}
-                    >
-                      ← Back
-                    </motion.span>
-                  </Link>
-                </motion.div>
+                {/* Removing the back button as requested */}
               </div>
             </div>
 
