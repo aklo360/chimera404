@@ -10,6 +10,7 @@ import {
   BitcoinNetworkType,
   SignPsbtParams,
 } from "sats-connect";
+import axios from "axios";
 import Link from "next/link";
 import WavyBackground from "@/components/WavyBackground";
 import Footer from "@/components/Footer";
@@ -173,31 +174,32 @@ export default function HybridSwap() {
   const fetchData = async () => {
     if (ordinalAddress !== "") {
       setLoading(true);
-      const res: any = await fetch(`${backendUrl}/user/get-rune-balance`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userAddress: ordinalAddress,
-        }),
-      });
-      const { balance } = await res.json();
-      setChimeraBalance(balance);
-
-      const resInscription: any = await fetch(
-        `${backendUrl}/user/get-inscription-list`,
+      const res: any = await axios.post(
+        `${backendUrl}/user/get-rune-balance`,
         {
-          method: "POST",
+          userAddress: ordinalAddress,
+        },
+        {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            userAddress: ordinalAddress,
-          }),
         }
       );
-      const { inscriptions } = await resInscription.json();
+      const { balance } = await res.data;
+      setChimeraBalance(balance);
+
+      const resInscription: any = await axios.post(
+        `${backendUrl}/user/get-inscription-list`,
+        {
+          userAddress: ordinalAddress,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const { inscriptions } = await resInscription.data;
       setInscriptionList(inscriptions);
       setLoading(false);
     } else {
@@ -212,21 +214,20 @@ export default function HybridSwap() {
       if (ordinalAddress === "") throw "Connect Wallet";
       if (inscriptionList.length === 0) throw "You Have Not Got Inscriptions";
 
-      const res = await fetch(
+      const res = await axios.post(
         `${backendUrl}/swap/pre-rune-inscribe-generate-psbt`,
         {
-          method: "POST",
+          walletType: walletType === "unisat" ? 0 : 1,
+          userPaymentAddress: paymentAddress,
+          userPaymentPubkey: paymentPubkey,
+          userOrdinalAddress: ordinalAddress,
+          userOrdinalPubkey: ordinalPubkey,
+          inscriptionId: selectedInscriptioin,
+        },
+        {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            walletType: walletType === "unisat" ? 0 : 1,
-            userPaymentAddress: paymentAddress,
-            userPaymentPubkey: paymentPubkey,
-            userOrdinalAddress: ordinalAddress,
-            userOrdinalPubkey: ordinalPubkey,
-            inscriptionId: selectedInscriptioin,
-          }),
         }
       );
 
@@ -237,7 +238,7 @@ export default function HybridSwap() {
         signOrdinalIndexes,
         runeUtxos,
         error,
-      } = await res.json();
+      } = await res.data;
 
       if (error) {
         setShowErrorModal(true);
@@ -305,22 +306,21 @@ export default function HybridSwap() {
         });
       }
 
-      const pushRes = await fetch(
+      const pushRes = await axios.post(
         `${backendUrl}/swap/push-rune-inscribe-psbt-arch`,
         {
-          method: "POST",
+          walletType: walletType === "unisat" ? 0 : 1,
+          signedPSBT: signedPsbt,
+          runeUtxos,
+        },
+        {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            walletType: walletType === "unisat" ? 0 : 1,
-            signedPSBT: signedPsbt,
-            runeUtxos,
-          }),
         }
       );
 
-      const { txid } = await pushRes.json();
+      const { txid } = await pushRes.data;
 
       return `https://mempool.space/testnet4/tx/${txid}`;
     } catch (error) {
@@ -333,20 +333,19 @@ export default function HybridSwap() {
     try {
       const walletType = localStorage.getItem("walletType");
       if (ordinalAddress === "") throw "Connect Wallet";
-      const res = await fetch(
+      const res = await axios.post(
         `${backendUrl}/swap/pre-inscribe-rune-generate-psbt`,
         {
-          method: "POST",
+          walletType: walletType === "unisat" ? 0 : 1,
+          userPaymentAddress: paymentAddress,
+          userPaymentPubkey: paymentPubkey,
+          userOrdinalAddress: ordinalAddress,
+          userOrdinalPubkey: ordinalPubkey,
+        },
+        {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            walletType: walletType === "unisat" ? 0 : 1,
-            userPaymentAddress: paymentAddress,
-            userPaymentPubkey: paymentPubkey,
-            userOrdinalAddress: ordinalAddress,
-            userOrdinalPubkey: ordinalPubkey,
-          }),
         }
       );
 
@@ -357,7 +356,7 @@ export default function HybridSwap() {
         signOrdinalIndexes,
         inscriptionUtxo,
         error,
-      } = await res.json();
+      } = await res.data;
 
       if (error) {
         setShowErrorModal(true);
@@ -426,22 +425,21 @@ export default function HybridSwap() {
         });
       }
 
-      const pushRes = await fetch(
+      const pushRes = await axios.post(
         `${backendUrl}/swap/push-inscribe-rune-psbt-arch`,
         {
-          method: "POST",
+          walletType: walletType === "unisat" ? 0 : 1,
+          userAddress: ordinalAddress,
+          signedPSBT: signedPsbt,
+          inscriptionUtxo,
+        },
+        {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            walletType: walletType === "unisat" ? 0 : 1,
-            userAddress: ordinalAddress,
-            signedPSBT: signedPsbt,
-            inscriptionUtxo,
-          }),
         }
       );
-      const { txid } = await pushRes.json();
+      const { txid } = await pushRes.data;
 
       return `https://mempool.space/testnet4/tx/${txid}`;
     } catch (error) {

@@ -2,7 +2,7 @@ import { Inter } from "next/font/google";
 import { motion, AnimatePresence } from "framer-motion";
 import Head from "next/head";
 import axios from "axios";
-import Image from "next/image";
+import ConfettiExplosion from "react-confetti-explosion";
 import {
   request,
   AddressPurpose,
@@ -351,14 +351,7 @@ export default function ETFPage() {
           signPaymentIndexes_forth,
           txids,
           vouts,
-          error,
         } = res.data;
-
-        if (error) {
-          setShowErrorModal(true);
-          setShowErrorMsg(error);
-          return "";
-        }
 
         let signedPsbt1, signedPsbt2, signedPsbt3, signedPsbt4;
         console.log(walletType);
@@ -573,8 +566,12 @@ export default function ETFPage() {
         }, 5000);
       }
       setIsProcessing(false);
-    } catch (error) {
-      console.error("Error processing transaction:", error);
+    } catch (error: any) {
+      console.error("Error processing transaction:", error.response.data.error);
+      if (error.response.data.error) {
+        setShowErrorModal(true);
+        setShowErrorMsg(error.response.data.error);
+      }
       setIsProcessing(false);
     }
   };
@@ -994,6 +991,58 @@ export default function ETFPage() {
           </div>
           <Footer />
         </div>
+        {/* Error Modal */}
+        <AnimatePresence>
+          {showErrorModal && (
+            <>
+              <div className="fixed inset-0 flex items-center justify-center z-[100]">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                  onClick={() => setShowErrorModal(false)}
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{
+                    type: "spring",
+                    damping: 25,
+                    stiffness: 300,
+                  }}
+                  className="relative bg-black/90 rounded-2xl p-8 max-w-lg w-full mx-4 border border-white/10 shadow-2xl z-[102]"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold text-white mb-6">
+                      Error!
+                    </h3>
+                    <p className="text-gray-300 mb-4">{errorMsg}</p>
+                    <motion.button
+                      onClick={() => setShowErrorModal(false)}
+                      className="text-white/80 hover:text-white transition-colors"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Close
+                    </motion.button>
+                  </div>
+                </motion.div>
+              </div>
+              {/* Confetti above everything */}
+              <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-[999999]">
+                <ConfettiExplosion
+                  force={0.8}
+                  duration={3000}
+                  particleCount={100}
+                  width={1600}
+                />
+              </div>
+            </>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );
