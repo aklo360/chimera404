@@ -18,6 +18,7 @@ import { useState, useEffect } from "react";
 import ConfettiExplosion from "react-confetti-explosion";
 import Header from "@/components/header";
 import Banner from "@/components/Banner";
+import { backendUrl } from "@/utils/config";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -45,8 +46,6 @@ const gradientAnimation = {
 };
 
 export default function Home() {
-  const backendUrl = "https://api.chimera.finance/api";
-
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [mintedCount, setMintedCount] = useState(0);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);

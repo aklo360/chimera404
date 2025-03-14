@@ -17,6 +17,7 @@ import { FaTwitter, FaDiscord } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import Header from "@/components/header";
 import Banner from "@/components/Banner";
+import { backendUrl } from "@/utils/config";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,11 +28,10 @@ const gradientAnimation = {
 };
 
 export default function LiquidityPool() {
-  // const backendUrl = "https://api.chimera.finance/api";
-  const backendUrl = "http://localhost:8001/api";
-
   // LP specific states
-  const [selectedPool, setSelectedPool] = useState<"chimera" | "btc10">("chimera");
+  const [selectedPool, setSelectedPool] = useState<"chimera" | "btc10">(
+    "chimera"
+  );
   const [chimeraAmount, setChimeraAmount] = useState<string>("0");
   const [tbtcAmount, setTbtcAmount] = useState<string>("0");
   const [apr, setApr] = useState<string>("12.5");
@@ -47,7 +47,7 @@ export default function LiquidityPool() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState<string>("0");
   const [activeTab, setActiveTab] = useState<"add" | "withdraw">("add");
-  
+
   // Wallet states
   const [loading, setLoading] = useState(false);
   const [paymentAddress, setPaymentAddress] = useState("");
@@ -199,12 +199,12 @@ export default function LiquidityPool() {
   const handleAddLiquidity = async () => {
     try {
       setIsAddingLiquidity(true);
-      
+
       // Mock successful liquidity addition
       setTimeout(() => {
         setIsAddingLiquidity(false);
         setShowSuccess(true);
-        
+
         // Reset form
         setTimeout(() => {
           setShowSuccess(false);
@@ -222,12 +222,12 @@ export default function LiquidityPool() {
   const handleWithdrawLiquidity = async () => {
     try {
       setIsWithdrawingLiquidity(true);
-      
+
       // Mock successful liquidity withdrawal
       setTimeout(() => {
         setIsWithdrawingLiquidity(false);
         setShowSuccess(true);
-        
+
         // Reset form
         setTimeout(() => {
           setShowSuccess(false);
@@ -292,7 +292,6 @@ export default function LiquidityPool() {
             {/* LP Content */}
             <div className="flex-1 flex items-center justify-center px-4 py-8">
               <div className="w-full max-w-[1280px] flex flex-col md:flex-row gap-6">
-                
                 {/* Left Section - Pool Info */}
                 <motion.div
                   className="w-full md:w-1/3 bg-black/60 backdrop-blur-md rounded-2xl overflow-hidden border border-white/[0.1] p-6"
@@ -302,22 +301,28 @@ export default function LiquidityPool() {
                 >
                   <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold text-white">
-                      {selectedPool === "chimera" ? "CHIMERA•PROTOCOL-tBTC" : "BTC•TEN•ETF•TOKEN-tBTC"}
+                      {selectedPool === "chimera"
+                        ? "CHIMERA•PROTOCOL-tBTC"
+                        : "BTC•TEN•ETF•TOKEN-tBTC"}
                     </h2>
                     <div className="text-right">
                       <p className="text-sm text-gray-400">24h APR</p>
                       <p className="text-lg font-bold text-green-500">{apr}%</p>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-4">
                     <div className="flex justify-between">
                       <span className="text-gray-400">Total Liquidity</span>
-                      <span className="text-white font-medium">{totalLiquidity}</span>
+                      <span className="text-white font-medium">
+                        {totalLiquidity}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">24h Volume</span>
-                      <span className="text-white font-medium">{volume24h}</span>
+                      <span className="text-white font-medium">
+                        {volume24h}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">24h Fees</span>
@@ -328,32 +333,38 @@ export default function LiquidityPool() {
                       <span className="text-white font-medium">1%</span>
                     </div>
                   </div>
-                  
+
                   <div className="mt-6 pt-6 border-t border-white/10">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center">
-                        <span className="text-xs font-bold">{selectedPool === "chimera" ? "CP" : "BT"}</span>
+                        <span className="text-xs font-bold">
+                          {selectedPool === "chimera" ? "CP" : "BT"}
+                        </span>
                       </div>
                       <div className="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center">
                         <span className="text-xs font-bold">₿</span>
                       </div>
                       <div>
                         <p className="text-white font-medium">
-                          {selectedPool === "chimera" ? "CHIMERA•PROTOCOL-tBTC" : "BTC•TEN•ETF•TOKEN-tBTC"}
+                          {selectedPool === "chimera"
+                            ? "CHIMERA•PROTOCOL-tBTC"
+                            : "BTC•TEN•ETF•TOKEN-tBTC"}
                         </p>
-                        <p className="text-xs text-gray-400">AMM Liquidity Pool</p>
+                        <p className="text-xs text-gray-400">
+                          AMM Liquidity Pool
+                        </p>
                       </div>
                     </div>
-                    
+
                     {/* Pool Selection */}
                     <div className="mt-6 space-y-3">
                       <p className="text-sm text-gray-400">Select Pool</p>
                       <div className="space-y-2">
-                        <button 
+                        <button
                           onClick={() => setSelectedPool("chimera")}
                           className={`w-full p-3 rounded-lg flex items-center gap-3 transition ${
-                            selectedPool === "chimera" 
-                              ? "bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30" 
+                            selectedPool === "chimera"
+                              ? "bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30"
                               : "bg-white/5 hover:bg-white/10 border border-white/10"
                           }`}
                         >
@@ -365,14 +376,16 @@ export default function LiquidityPool() {
                               <span className="text-xs font-bold">₿</span>
                             </div>
                           </div>
-                          <span className="text-white text-sm">CHIMERA•PROTOCOL-tBTC</span>
+                          <span className="text-white text-sm">
+                            CHIMERA•PROTOCOL-tBTC
+                          </span>
                         </button>
-                        
-                        <button 
+
+                        <button
                           onClick={() => setSelectedPool("btc10")}
                           className={`w-full p-3 rounded-lg flex items-center gap-3 transition ${
-                            selectedPool === "btc10" 
-                              ? "bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30" 
+                            selectedPool === "btc10"
+                              ? "bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30"
                               : "bg-white/5 hover:bg-white/10 border border-white/10"
                           }`}
                         >
@@ -384,13 +397,15 @@ export default function LiquidityPool() {
                               <span className="text-xs font-bold">₿</span>
                             </div>
                           </div>
-                          <span className="text-white text-sm">BTC•TEN•ETF•TOKEN-tBTC</span>
+                          <span className="text-white text-sm">
+                            BTC•TEN•ETF•TOKEN-tBTC
+                          </span>
                         </button>
                       </div>
                     </div>
                   </div>
                 </motion.div>
-                
+
                 {/* Right Section - User Position and Add Liquidity */}
                 <div className="w-full md:w-2/3 space-y-6">
                   {/* User Position */}
@@ -400,31 +415,43 @@ export default function LiquidityPool() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
                   >
-                    <h2 className="text-xl font-bold text-white mb-4">Your Position</h2>
-                    
+                    <h2 className="text-xl font-bold text-white mb-4">
+                      Your Position
+                    </h2>
+
                     {paymentAddress ? (
                       <div className="space-y-4">
                         <div className="flex justify-between">
                           <span className="text-gray-400">Your Liquidity</span>
-                          <span className="text-white font-medium">{userLiquidity}</span>
+                          <span className="text-white font-medium">
+                            {userLiquidity}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-400">Pool Share</span>
-                          <span className="text-white font-medium">{userShare}%</span>
+                          <span className="text-white font-medium">
+                            {userShare}%
+                          </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Unclaimed Earnings</span>
-                          <span className="text-white font-medium">{userEarnings}</span>
+                          <span className="text-gray-400">
+                            Unclaimed Earnings
+                          </span>
+                          <span className="text-white font-medium">
+                            {userEarnings}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-400">Net Yield</span>
-                          <span className="text-white font-medium">{userNetYield}%</span>
+                          <span className="text-white font-medium">
+                            {userNetYield}%
+                          </span>
                         </div>
-                        
+
                         {userLiquidity !== "$0" && (
                           <div className="mt-4">
                             <div className="flex gap-3 mb-4">
-                              <button 
+                              <button
                                 onClick={() => setIsWithdrawingLiquidity(true)}
                                 className="flex-1 px-4 py-2 bg-red-500/20 text-red-500 rounded-lg hover:bg-red-500/30 transition"
                               >
@@ -434,7 +461,7 @@ export default function LiquidityPool() {
                                 Claim Rewards
                               </button>
                             </div>
-                            
+
                             {/* Withdraw UI */}
                             <AnimatePresence>
                               {isWithdrawingLiquidity && (
@@ -445,28 +472,34 @@ export default function LiquidityPool() {
                                   className="overflow-hidden"
                                 >
                                   <div className="p-4 bg-white/5 rounded-lg mt-2">
-                                    <h4 className="text-white font-medium mb-3">Withdraw Liquidity</h4>
+                                    <h4 className="text-white font-medium mb-3">
+                                      Withdraw Liquidity
+                                    </h4>
                                     <div className="mb-3">
                                       <div className="flex justify-between mb-2">
-                                        <label className="text-gray-400">Amount (%)</label>
+                                        <label className="text-gray-400">
+                                          Amount (%)
+                                        </label>
                                       </div>
                                       <div className="flex gap-2">
                                         <div className="flex-1 relative">
                                           <input
                                             type="text"
                                             value={withdrawAmount}
-                                            onChange={(e) => setWithdrawAmount(e.target.value)}
+                                            onChange={(e) =>
+                                              setWithdrawAmount(e.target.value)
+                                            }
                                             className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white"
                                             placeholder="0"
                                           />
                                         </div>
-                                        <button 
+                                        <button
                                           onClick={handleSetHalfWithdraw}
                                           className="px-3 py-1 bg-white/10 rounded-lg text-white text-sm hover:bg-white/20 transition"
                                         >
                                           50%
                                         </button>
-                                        <button 
+                                        <button
                                           onClick={handleSetMaxWithdraw}
                                           className="px-3 py-1 bg-white/10 rounded-lg text-white text-sm hover:bg-white/20 transition"
                                         >
@@ -475,13 +508,15 @@ export default function LiquidityPool() {
                                       </div>
                                     </div>
                                     <div className="flex gap-2">
-                                      <button 
-                                        onClick={() => setIsWithdrawingLiquidity(false)}
+                                      <button
+                                        onClick={() =>
+                                          setIsWithdrawingLiquidity(false)
+                                        }
                                         className="flex-1 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition"
                                       >
                                         Cancel
                                       </button>
-                                      <button 
+                                      <button
                                         onClick={handleWithdrawLiquidity}
                                         className="flex-1 px-4 py-2 bg-red-500/20 text-red-500 rounded-lg hover:bg-red-500/30 transition"
                                       >
@@ -497,8 +532,10 @@ export default function LiquidityPool() {
                       </div>
                     ) : (
                       <div className="text-center py-6">
-                        <p className="text-gray-400 mb-4">Connect your wallet to view your position</p>
-                        <button 
+                        <p className="text-gray-400 mb-4">
+                          Connect your wallet to view your position
+                        </p>
+                        <button
                           onClick={connectWallet}
                           className="px-6 py-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg text-white font-medium hover:opacity-90 transition"
                         >
@@ -507,7 +544,7 @@ export default function LiquidityPool() {
                       </div>
                     )}
                   </motion.div>
-                  
+
                   {/* Add/Withdraw Liquidity Tabs */}
                   <motion.div
                     className="bg-black/60 backdrop-blur-md rounded-2xl overflow-hidden border border-white/[0.1] p-6"
@@ -519,8 +556,8 @@ export default function LiquidityPool() {
                       <button
                         onClick={() => setActiveTab("add")}
                         className={`flex-1 py-2 rounded-md text-center transition-colors ${
-                          activeTab === "add" 
-                            ? "bg-gradient-to-r from-orange-500 to-red-500 text-white" 
+                          activeTab === "add"
+                            ? "bg-gradient-to-r from-orange-500 to-red-500 text-white"
                             : "text-gray-400 hover:text-white"
                         }`}
                       >
@@ -529,26 +566,32 @@ export default function LiquidityPool() {
                       <button
                         onClick={() => setActiveTab("withdraw")}
                         className={`flex-1 py-2 rounded-md text-center transition-colors ${
-                          activeTab === "withdraw" 
-                            ? "bg-gradient-to-r from-orange-500 to-red-500 text-white" 
+                          activeTab === "withdraw"
+                            ? "bg-gradient-to-r from-orange-500 to-red-500 text-white"
                             : "text-gray-400 hover:text-white"
                         }`}
                       >
                         Withdraw
                       </button>
                     </div>
-                    
+
                     {activeTab === "add" ? (
                       <div>
                         {/* First Token Input */}
                         <div className="mb-4">
                           <div className="flex items-center justify-between mb-4">
                             <h2 className="text-base font-medium text-white">
-                              {selectedPool === "chimera" ? "CHIMERA•PROTOCOL" : "BTC•TEN•ETF•TOKEN"}:
+                              {selectedPool === "chimera"
+                                ? "CHIMERA•PROTOCOL"
+                                : "BTC•TEN•ETF•TOKEN"}
+                              :
                             </h2>
                             {paymentAddress && (
                               <span className="text-white/60 text-sm">
-                                Balance: {selectedPool === "chimera" ? chimeraBalance.toLocaleString() : "100"}
+                                Balance:{" "}
+                                {selectedPool === "chimera"
+                                  ? chimeraBalance.toLocaleString()
+                                  : "100"}
                               </span>
                             )}
                           </div>
@@ -559,17 +602,23 @@ export default function LiquidityPool() {
                                 className="bg-transparent text-xl font-semibold text-white w-full outline-none"
                                 placeholder="0.00"
                                 value={chimeraAmount}
-                                onChange={(e) => setChimeraAmount(e.target.value)}
+                                onChange={(e) =>
+                                  setChimeraAmount(e.target.value)
+                                }
                               />
                               <div className="text-white/80 text-sm ml-2 inline-flex items-center whitespace-nowrap bg-white/10 px-3 py-1 rounded-lg">
-                                {selectedPool === "chimera" ? "CHIMERA•PROTOCOL ▣" : "BTC•TEN•ETF•TOKEN ▣"}
+                                {selectedPool === "chimera"
+                                  ? "CHIMERA•PROTOCOL ▣"
+                                  : "BTC•TEN•ETF•TOKEN ▣"}
                               </div>
                             </div>
                             <div className="flex justify-end space-x-3 mt-2 mr-1">
-                              <button 
+                              <button
                                 onClick={() => {
                                   if (selectedPool === "chimera") {
-                                    setChimeraAmount((chimeraBalance / 2).toString());
+                                    setChimeraAmount(
+                                      (chimeraBalance / 2).toString()
+                                    );
                                   } else {
                                     setChimeraAmount("50");
                                   }
@@ -578,7 +627,7 @@ export default function LiquidityPool() {
                               >
                                 Half
                               </button>
-                              <button 
+                              <button
                                 onClick={() => {
                                   if (selectedPool === "chimera") {
                                     setChimeraAmount(chimeraBalance.toString());
@@ -593,7 +642,7 @@ export default function LiquidityPool() {
                             </div>
                           </div>
                         </div>
-                        
+
                         {/* tBTC Input */}
                         <div className="mb-6">
                           <div className="flex items-center justify-between mb-4">
@@ -620,14 +669,18 @@ export default function LiquidityPool() {
                               </div>
                             </div>
                             <div className="flex justify-end space-x-3 mt-2 mr-1">
-                              <button 
-                                onClick={() => setTbtcAmount((tbtcBalance / 2).toString())}
+                              <button
+                                onClick={() =>
+                                  setTbtcAmount((tbtcBalance / 2).toString())
+                                }
                                 className="text-white/60 hover:text-white text-xs transition-colors px-1"
                               >
                                 Half
                               </button>
-                              <button 
-                                onClick={() => setTbtcAmount(tbtcBalance.toString())}
+                              <button
+                                onClick={() =>
+                                  setTbtcAmount(tbtcBalance.toString())
+                                }
                                 className="text-white/60 hover:text-white text-xs transition-colors px-1"
                               >
                                 Max
@@ -635,17 +688,20 @@ export default function LiquidityPool() {
                             </div>
                           </div>
                         </div>
-                        
+
                         {/* Summary - Minimal */}
                         <div className="mb-6">
                           <div className="flex justify-between text-sm">
                             <span className="text-white/60">Exchange Rate</span>
                             <span className="text-white">
-                              1 tBTC = {selectedPool === "chimera" ? "10,000 CHIMERA•PROTOCOL" : "100 BTC•TEN•ETF•TOKEN"}
+                              1 tBTC ={" "}
+                              {selectedPool === "chimera"
+                                ? "10,000 CHIMERA•PROTOCOL"
+                                : "100 BTC•TEN•ETF•TOKEN"}
                             </span>
                           </div>
                         </div>
-                        
+
                         {/* Add Liquidity Button */}
                         <motion.button
                           onClick={handleAddLiquidity}
@@ -655,13 +711,26 @@ export default function LiquidityPool() {
                             transition: { duration: 0.2 },
                           }}
                           whileTap={{ scale: 0.98 }}
-                          disabled={isAddingLiquidity || !paymentAddress || chimeraAmount === "0" || tbtcAmount === "0"}
+                          disabled={
+                            isAddingLiquidity ||
+                            !paymentAddress ||
+                            chimeraAmount === "0" ||
+                            tbtcAmount === "0"
+                          }
                         >
                           <div
                             className="absolute inset-0 rounded-lg bg-gradient-to-r from-[#FFA200] via-[#FF3000] to-[#FFA200]"
                             style={gradientAnimation}
                           />
-                          <div className={`absolute inset-[1px] rounded-lg ${(!paymentAddress || chimeraAmount === "0" || tbtcAmount === "0") ? 'bg-black/95' : 'bg-black/80'} backdrop-blur-sm`} />
+                          <div
+                            className={`absolute inset-[1px] rounded-lg ${
+                              !paymentAddress ||
+                              chimeraAmount === "0" ||
+                              tbtcAmount === "0"
+                                ? "bg-black/95"
+                                : "bg-black/80"
+                            } backdrop-blur-sm`}
+                          />
                           <span className="relative z-10 flex items-center justify-center">
                             {isAddingLiquidity ? (
                               <>
@@ -701,8 +770,10 @@ export default function LiquidityPool() {
                       <div>
                         {userLiquidity === "$0" ? (
                           <div className="text-center py-4">
-                            <p className="text-white/60 mb-2">You don't have any liquidity in this pool yet.</p>
-                            <button 
+                            <p className="text-white/60 mb-2">
+                              You don't have any liquidity in this pool yet.
+                            </p>
+                            <button
                               onClick={() => setActiveTab("add")}
                               className="px-4 py-2 bg-white/10 rounded-lg text-white text-sm hover:bg-white/20 transition"
                             >
@@ -714,13 +785,19 @@ export default function LiquidityPool() {
                             {/* Your Position Summary */}
                             <div className="mb-4">
                               <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-base font-medium text-white">Your Position:</h2>
-                                <span className="text-white/60 text-sm">{userLiquidity}</span>
+                                <h2 className="text-base font-medium text-white">
+                                  Your Position:
+                                </h2>
+                                <span className="text-white/60 text-sm">
+                                  {userLiquidity}
+                                </span>
                               </div>
                               <div className="flex flex-col space-y-2 text-sm">
                                 <div className="flex justify-between">
                                   <span className="text-white/60">
-                                    {selectedPool === "chimera" ? "CHIMERA•PROTOCOL" : "BTC•TEN•ETF•TOKEN"}
+                                    {selectedPool === "chimera"
+                                      ? "CHIMERA•PROTOCOL"
+                                      : "BTC•TEN•ETF•TOKEN"}
                                   </span>
                                   <span className="text-white">125,000</span>
                                 </div>
@@ -730,11 +807,13 @@ export default function LiquidityPool() {
                                 </div>
                               </div>
                             </div>
-                            
+
                             {/* Withdraw Amount */}
                             <div className="mb-6">
                               <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-base font-medium text-white">Withdraw Amount:</h2>
+                                <h2 className="text-base font-medium text-white">
+                                  Withdraw Amount:
+                                </h2>
                               </div>
                               <div className="flex flex-col space-y-2">
                                 <div className="flex items-center justify-between bg-black/60 rounded-lg p-3 border border-white/10">
@@ -743,20 +822,22 @@ export default function LiquidityPool() {
                                     className="bg-transparent text-xl font-semibold text-white w-full outline-none"
                                     placeholder="0.00"
                                     value={withdrawAmount}
-                                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                                    onChange={(e) =>
+                                      setWithdrawAmount(e.target.value)
+                                    }
                                   />
                                   <div className="text-white/80 text-sm ml-2 inline-flex items-center whitespace-nowrap bg-white/10 px-3 py-1 rounded-lg">
                                     %
                                   </div>
                                 </div>
                                 <div className="flex justify-end space-x-3 mt-2 mr-1">
-                                  <button 
+                                  <button
                                     onClick={handleSetHalfWithdraw}
                                     className="text-white/60 hover:text-white text-xs transition-colors px-1"
                                   >
                                     50%
                                   </button>
-                                  <button 
+                                  <button
                                     onClick={handleSetMaxWithdraw}
                                     className="text-white/60 hover:text-white text-xs transition-colors px-1"
                                   >
@@ -765,30 +846,50 @@ export default function LiquidityPool() {
                                 </div>
                               </div>
                             </div>
-                            
+
                             {/* You Will Receive */}
                             <div className="mb-6">
                               <div className="flex items-center mb-2">
-                                <h2 className="text-base font-medium text-white">You Will Receive:</h2>
+                                <h2 className="text-base font-medium text-white">
+                                  You Will Receive:
+                                </h2>
                               </div>
                               <div className="flex flex-col space-y-2 text-sm">
                                 <div className="flex justify-between">
                                   <span className="text-white/60">
-                                    {selectedPool === "chimera" ? "CHIMERA•PROTOCOL" : "BTC•TEN•ETF•TOKEN"}
+                                    {selectedPool === "chimera"
+                                      ? "CHIMERA•PROTOCOL"
+                                      : "BTC•TEN•ETF•TOKEN"}
                                   </span>
-                                  <span className="text-white">{withdrawAmount === "0" ? "0" : withdrawAmount === "100" ? "125,000" : "62,500"}</span>
+                                  <span className="text-white">
+                                    {withdrawAmount === "0"
+                                      ? "0"
+                                      : withdrawAmount === "100"
+                                      ? "125,000"
+                                      : "62,500"}
+                                  </span>
                                 </div>
                                 <div className="flex justify-between">
                                   <span className="text-white/60">tBTC</span>
-                                  <span className="text-white">{withdrawAmount === "0" ? "0" : withdrawAmount === "100" ? "0.0125" : "0.00625"}</span>
+                                  <span className="text-white">
+                                    {withdrawAmount === "0"
+                                      ? "0"
+                                      : withdrawAmount === "100"
+                                      ? "0.0125"
+                                      : "0.00625"}
+                                  </span>
                                 </div>
                                 <div className="flex justify-between">
-                                  <span className="text-white/60">Earned Fees</span>
-                                  <span className="text-white">{userEarnings}</span>
+                                  <span className="text-white/60">
+                                    Earned Fees
+                                  </span>
+                                  <span className="text-white">
+                                    {userEarnings}
+                                  </span>
                                 </div>
                               </div>
                             </div>
-                            
+
                             {/* Withdraw Button */}
                             <motion.button
                               onClick={handleWithdrawLiquidity}
@@ -798,13 +899,21 @@ export default function LiquidityPool() {
                                 transition: { duration: 0.2 },
                               }}
                               whileTap={{ scale: 0.98 }}
-                              disabled={isWithdrawingLiquidity || withdrawAmount === "0"}
+                              disabled={
+                                isWithdrawingLiquidity || withdrawAmount === "0"
+                              }
                             >
                               <div
                                 className="absolute inset-0 rounded-lg bg-gradient-to-r from-[#FFA200] via-[#FF3000] to-[#FFA200]"
                                 style={gradientAnimation}
                               />
-                              <div className={`absolute inset-[1px] rounded-lg ${withdrawAmount === "0" ? 'bg-black/95' : 'bg-black/80'} backdrop-blur-sm`} />
+                              <div
+                                className={`absolute inset-[1px] rounded-lg ${
+                                  withdrawAmount === "0"
+                                    ? "bg-black/95"
+                                    : "bg-black/80"
+                                } backdrop-blur-sm`}
+                              />
                               <span className="relative z-10 flex items-center justify-center">
                                 {isWithdrawingLiquidity ? (
                                   <>
@@ -851,4 +960,4 @@ export default function LiquidityPool() {
       </main>
     </div>
   );
-} 
+}

@@ -18,6 +18,7 @@ import { useState, useEffect } from "react";
 import ConfettiExplosion from "react-confetti-explosion";
 import Header from "@/components/header";
 import Banner from "@/components/Banner";
+import { backendUrl } from "@/utils/config";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,9 +29,6 @@ const gradientAnimation = {
 };
 
 export default function HybridSwap() {
-  // const backendUrl = "https://api.chimera.finance/api";
-  const backendUrl = "http://localhost:8001/api";
-
   const [isSwapFlipped, setIsSwapFlipped] = useState(false);
   const [sendAmount, setSendAmount] = useState<string>("1");
   const [getAmount, setGetAmount] = useState<string>("100,000");
@@ -754,39 +752,47 @@ export default function HybridSwap() {
 
                         {/* Advanced Options Toggle */}
                         <div className="mt-4">
-                          <button 
-                            onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+                          <button
+                            onClick={() =>
+                              setShowAdvancedOptions(!showAdvancedOptions)
+                            }
                             className="text-white/70 hover:text-white text-sm flex items-center transition-colors"
                           >
                             <span>Advanced</span>
-                            <svg 
-                              xmlns="http://www.w3.org/2000/svg" 
-                              width="16" 
-                              height="16" 
-                              viewBox="0 0 24 24" 
-                              fill="none" 
-                              stroke="currentColor" 
-                              strokeWidth="2" 
-                              strokeLinecap="round" 
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
                               strokeLinejoin="round"
-                              className={`ml-1 transition-transform duration-200 ${showAdvancedOptions ? 'rotate-180' : ''}`}
+                              className={`ml-1 transition-transform duration-200 ${
+                                showAdvancedOptions ? "rotate-180" : ""
+                              }`}
                             >
                               <polyline points="6 9 12 15 18 9"></polyline>
                             </svg>
                           </button>
                         </div>
-                        
+
                         {/* Advanced Options Section - Hidden by Default */}
                         {showAdvancedOptions && (
                           <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
-                            <h3 className="text-white font-medium mb-2 text-sm">Advanced</h3>
+                            <h3 className="text-white font-medium mb-2 text-sm">
+                              Advanced
+                            </h3>
                             <div className="flex items-center justify-between">
-                              <span className="text-white/70 text-xs">Transaction Speed</span>
+                              <span className="text-white/70 text-xs">
+                                Transaction Speed
+                              </span>
                               <div className="flex space-x-1">
-                                <button 
+                                <button
                                   className={`px-2 py-1 text-xs rounded transition-colors ${
-                                    transactionSpeed === "normal" 
-                                      ? "bg-[#FF6B00]/20 text-[#FF6B00]" 
+                                    transactionSpeed === "normal"
+                                      ? "bg-[#FF6B00]/20 text-[#FF6B00]"
                                       : "bg-white/10 hover:bg-white/20 text-white"
                                   }`}
                                   onClick={() => {
@@ -796,10 +802,10 @@ export default function HybridSwap() {
                                 >
                                   Normal
                                 </button>
-                                <button 
+                                <button
                                   className={`px-2 py-1 text-xs rounded transition-colors ${
-                                    transactionSpeed === "fast" 
-                                      ? "bg-[#FF6B00]/20 text-[#FF6B00]" 
+                                    transactionSpeed === "fast"
+                                      ? "bg-[#FF6B00]/20 text-[#FF6B00]"
                                       : "bg-white/10 hover:bg-white/20 text-white"
                                   }`}
                                   onClick={() => {
@@ -809,10 +815,10 @@ export default function HybridSwap() {
                                 >
                                   Fast
                                 </button>
-                                <button 
+                                <button
                                   className={`px-2 py-1 text-xs rounded transition-colors ${
-                                    transactionSpeed === "custom" 
-                                      ? "bg-[#FF6B00]/20 text-[#FF6B00]" 
+                                    transactionSpeed === "custom"
+                                      ? "bg-[#FF6B00]/20 text-[#FF6B00]"
                                       : "bg-white/10 hover:bg-white/20 text-white"
                                   }`}
                                   onClick={() => {
@@ -831,9 +837,13 @@ export default function HybridSwap() {
                                   className="bg-black/40 text-white text-xs p-1 rounded w-20 outline-none border border-white/10"
                                   placeholder="10"
                                   value={customFeeRate}
-                                  onChange={(e) => setCustomFeeRate(e.target.value)}
+                                  onChange={(e) =>
+                                    setCustomFeeRate(e.target.value)
+                                  }
                                 />
-                                <span className="text-white/70 text-xs ml-2">sats/vB</span>
+                                <span className="text-white/70 text-xs ml-2">
+                                  sats/vB
+                                </span>
                               </div>
                             )}
                           </div>

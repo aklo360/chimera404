@@ -18,6 +18,7 @@ import { useState, useEffect } from "react";
 import ConfettiExplosion from "react-confetti-explosion";
 import Header from "@/components/header";
 import Banner from "@/components/Banner";
+import { backendUrl } from "@/utils/config";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,9 +29,6 @@ const gradientAnimation = {
 };
 
 export default function ChimeraSwap() {
-  // const backendUrl = "https://api.chimera.finance/api";
-  const backendUrl = "http://localhost:8001/api";
-
   const [isSwapFlipped, setIsSwapFlipped] = useState(false);
   const [sendAmount, setSendAmount] = useState<string>("");
   const [getAmount, setGetAmount] = useState<string>("");
@@ -539,14 +537,15 @@ export default function ChimeraSwap() {
                             Sell:
                           </h2>
                           <span className="text-white/60 text-sm">
-                            Balance: {isSwapFlipped 
+                            Balance:{" "}
+                            {isSwapFlipped
                               ? selectedBuyToken === "CHIMERA"
                                 ? chimeraBalance !== undefined
                                   ? chimeraBalance.toLocaleString()
                                   : 0
                                 : btc10Balance !== undefined
-                                  ? btc10Balance.toLocaleString()
-                                  : 0
+                                ? btc10Balance.toLocaleString()
+                                : 0
                               : "0.05 tBTC"}
                           </span>
                         </div>
@@ -564,10 +563,16 @@ export default function ChimeraSwap() {
                                 <select
                                   className="text-white/80 text-sm ml-2 inline-flex items-center whitespace-nowrap bg-white/10 px-3 py-1 rounded-lg appearance-none cursor-pointer"
                                   value={selectedBuyToken}
-                                  onChange={(e) => handleTokenChange(e.target.value)}
+                                  onChange={(e) =>
+                                    handleTokenChange(e.target.value)
+                                  }
                                 >
-                                  <option value="CHIMERA">CHIMERA•PROTOCOL ▣</option>
-                                  <option value="BTC10">BTC•TEN•ETF•TOKEN ▣</option>
+                                  <option value="CHIMERA">
+                                    CHIMERA•PROTOCOL ▣
+                                  </option>
+                                  <option value="BTC10">
+                                    BTC•TEN•ETF•TOKEN ▣
+                                  </option>
                                 </select>
                               </div>
                             ) : (
@@ -651,72 +656,86 @@ export default function ChimeraSwap() {
                                 <select
                                   className="text-white/80 text-sm ml-2 inline-flex items-center whitespace-nowrap bg-white/10 px-3 py-1 rounded-lg appearance-none cursor-pointer"
                                   value={selectedBuyToken}
-                                  onChange={(e) => handleTokenChange(e.target.value)}
+                                  onChange={(e) =>
+                                    handleTokenChange(e.target.value)
+                                  }
                                 >
-                                  <option value="CHIMERA">CHIMERA•PROTOCOL ▣</option>
-                                  <option value="BTC10">BTC•TEN•ETF•TOKEN ▣</option>
+                                  <option value="CHIMERA">
+                                    CHIMERA•PROTOCOL ▣
+                                  </option>
+                                  <option value="BTC10">
+                                    BTC•TEN•ETF•TOKEN ▣
+                                  </option>
                                 </select>
                               </div>
                             )}
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Advanced Options Toggle */}
                       <div className="mb-4">
-                        <button 
-                          onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+                        <button
+                          onClick={() =>
+                            setShowAdvancedOptions(!showAdvancedOptions)
+                          }
                           className="text-white/70 hover:text-white text-sm flex items-center transition-colors"
                         >
                           <span>Advanced</span>
-                          <svg 
-                            xmlns="http://www.w3.org/2000/svg" 
-                            width="16" 
-                            height="16" 
-                            viewBox="0 0 24 24" 
-                            fill="none" 
-                            stroke="currentColor" 
-                            strokeWidth="2" 
-                            strokeLinecap="round" 
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
                             strokeLinejoin="round"
-                            className={`ml-1 transition-transform duration-200 ${showAdvancedOptions ? 'rotate-180' : ''}`}
+                            className={`ml-1 transition-transform duration-200 ${
+                              showAdvancedOptions ? "rotate-180" : ""
+                            }`}
                           >
                             <polyline points="6 9 12 15 18 9"></polyline>
                           </svg>
                         </button>
                       </div>
-                      
+
                       {/* Advanced Options Section - Hidden by Default */}
                       {showAdvancedOptions && (
                         <div className="mb-6 p-3 bg-white/5 rounded-lg border border-white/10">
-                          <h3 className="text-white font-medium mb-2 text-sm">Advanced</h3>
+                          <h3 className="text-white font-medium mb-2 text-sm">
+                            Advanced
+                          </h3>
                           <div className="flex items-center justify-between mb-3">
-                            <span className="text-white/70 text-xs">Slippage Tolerance</span>
+                            <span className="text-white/70 text-xs">
+                              Slippage Tolerance
+                            </span>
                             <div className="flex space-x-1">
-                              <button 
+                              <button
                                 className={`px-2 py-1 text-xs rounded transition-colors ${
-                                  slippageTolerance === "0.3" 
-                                    ? "bg-[#FF6B00]/20 text-[#FF6B00]" 
+                                  slippageTolerance === "0.3"
+                                    ? "bg-[#FF6B00]/20 text-[#FF6B00]"
                                     : "bg-white/10 hover:bg-white/20 text-white"
                                 }`}
                                 onClick={() => setSlippageTolerance("0.3")}
                               >
                                 0.3%
                               </button>
-                              <button 
+                              <button
                                 className={`px-2 py-1 text-xs rounded transition-colors ${
-                                  slippageTolerance === "0.5" 
-                                    ? "bg-[#FF6B00]/20 text-[#FF6B00]" 
+                                  slippageTolerance === "0.5"
+                                    ? "bg-[#FF6B00]/20 text-[#FF6B00]"
                                     : "bg-white/10 hover:bg-white/20 text-white"
                                 }`}
                                 onClick={() => setSlippageTolerance("0.5")}
                               >
                                 0.5%
                               </button>
-                              <button 
+                              <button
                                 className={`px-2 py-1 text-xs rounded transition-colors ${
-                                  slippageTolerance === "1" 
-                                    ? "bg-[#FF6B00]/20 text-[#FF6B00]" 
+                                  slippageTolerance === "1"
+                                    ? "bg-[#FF6B00]/20 text-[#FF6B00]"
                                     : "bg-white/10 hover:bg-white/20 text-white"
                                 }`}
                                 onClick={() => setSlippageTolerance("1")}
@@ -726,12 +745,14 @@ export default function ChimeraSwap() {
                             </div>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-white/70 text-xs">Transaction Speed</span>
+                            <span className="text-white/70 text-xs">
+                              Transaction Speed
+                            </span>
                             <div className="flex space-x-1">
-                              <button 
+                              <button
                                 className={`px-2 py-1 text-xs rounded transition-colors ${
-                                  transactionSpeed === "normal" 
-                                    ? "bg-[#FF6B00]/20 text-[#FF6B00]" 
+                                  transactionSpeed === "normal"
+                                    ? "bg-[#FF6B00]/20 text-[#FF6B00]"
                                     : "bg-white/10 hover:bg-white/20 text-white"
                                 }`}
                                 onClick={() => {
@@ -741,10 +762,10 @@ export default function ChimeraSwap() {
                               >
                                 Normal
                               </button>
-                              <button 
+                              <button
                                 className={`px-2 py-1 text-xs rounded transition-colors ${
-                                  transactionSpeed === "fast" 
-                                    ? "bg-[#FF6B00]/20 text-[#FF6B00]" 
+                                  transactionSpeed === "fast"
+                                    ? "bg-[#FF6B00]/20 text-[#FF6B00]"
                                     : "bg-white/10 hover:bg-white/20 text-white"
                                 }`}
                                 onClick={() => {
@@ -754,10 +775,10 @@ export default function ChimeraSwap() {
                               >
                                 Fast
                               </button>
-                              <button 
+                              <button
                                 className={`px-2 py-1 text-xs rounded transition-colors ${
-                                  transactionSpeed === "custom" 
-                                    ? "bg-[#FF6B00]/20 text-[#FF6B00]" 
+                                  transactionSpeed === "custom"
+                                    ? "bg-[#FF6B00]/20 text-[#FF6B00]"
                                     : "bg-white/10 hover:bg-white/20 text-white"
                                 }`}
                                 onClick={() => {
@@ -776,9 +797,13 @@ export default function ChimeraSwap() {
                                 className="bg-black/40 text-white text-xs p-1 rounded w-20 outline-none border border-white/10"
                                 placeholder="10"
                                 value={customFeeRate}
-                                onChange={(e) => setCustomFeeRate(e.target.value)}
+                                onChange={(e) =>
+                                  setCustomFeeRate(e.target.value)
+                                }
                               />
-                              <span className="text-white/70 text-xs ml-2">sats/vB</span>
+                              <span className="text-white/70 text-xs ml-2">
+                                sats/vB
+                              </span>
                             </div>
                           )}
                         </div>
