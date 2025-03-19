@@ -37,6 +37,7 @@ const etfAssets = [
     price: "$0.00000142",
     change24h: "+5.2%",
     marketCap: "$142M",
+    runeId: "72795:1082",
     balance: "17,887,324,155",
   },
   {
@@ -46,6 +47,7 @@ const etfAssets = [
     price: "$42.87",
     change24h: "-2.1%",
     marketCap: "$901M",
+    runeId: "72801:1001",
     balance: "4,361",
   },
   {
@@ -55,6 +57,7 @@ const etfAssets = [
     price: "$0.0324",
     change24h: "+1.7%",
     marketCap: "$324M",
+    runeId: "72801:1007",
     balance: "3,796,296",
   },
   {
@@ -64,6 +67,7 @@ const etfAssets = [
     price: "$0.00214",
     change24h: "+8.3%",
     marketCap: "$214M",
+    runeId: "72801:1004",
     balance: "4,906,542",
   },
   {
@@ -73,6 +77,7 @@ const etfAssets = [
     price: "$0.00098",
     change24h: "+3.4%",
     marketCap: "$98M",
+    runeId: "72801:1003",
     balance: "8,367,347",
   },
   {
@@ -82,6 +87,7 @@ const etfAssets = [
     price: "$0.00076",
     change24h: "-1.2%",
     marketCap: "$76M",
+    runeId: "72801:1002",
     balance: "10,000,000",
   },
   {
@@ -91,6 +97,7 @@ const etfAssets = [
     price: "$0.00068",
     change24h: "+12.4%",
     marketCap: "$68M",
+    runeId: "72801:1008",
     balance: "10,000,000",
   },
   {
@@ -100,6 +107,7 @@ const etfAssets = [
     price: "$0.00042",
     change24h: "-0.8%",
     marketCap: "$42M",
+    runeId: "72801:1005",
     balance: "10,000,000",
   },
   {
@@ -109,6 +117,7 @@ const etfAssets = [
     price: "$0.00035",
     change24h: "+2.1%",
     marketCap: "$35M",
+    runeId: "72801:1006",
     balance: "10,000,000",
   },
   {
@@ -118,6 +127,7 @@ const etfAssets = [
     price: "$0.00028",
     change24h: "+15.7%",
     marketCap: "$28M",
+    runeId: "68341:599",
     balance: "10,000,000",
   },
 ];
@@ -153,6 +163,7 @@ export default function ETFPage() {
   const [errorMsg, setShowErrorMsg] = useState("");
   const [openWalletModal, setOpenWalletModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
+  const [scBalance, setSCBalance] = useState<{ [key: string]: number }>({});
 
   // Fetch user balances and ETF data
   const fetchData = async () => {
@@ -174,6 +185,9 @@ export default function ETFPage() {
       console.log(res);
       const { balance } = await res.data;
       setEtfBalance(balance);
+      const resSC = await axios.get(`${backendUrl}/etf/get-rune-balance-list`);
+      const { list } = await resSC.data;
+      setSCBalance(list);
       setLoading(false);
     } else {
       setEtfBalance(0);
@@ -649,25 +663,26 @@ export default function ETFPage() {
                     </p>
 
                     {/* Metrics Cards */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-4 md:mt-6">
-                      <div className="bg-black/40 rounded-xl p-4 border border-white/10">
-                        <p className="text-gray-400 text-sm mb-1">TVL</p>
-                        <p className="text-white text-xl font-bold">{tvl}</p>
-                      </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mt-4 md:mt-6">
                       <div className="bg-black/40 rounded-xl p-4 border border-white/10">
                         <p className="text-gray-400 text-sm mb-1">AUM</p>
-                        <p className="text-white text-xl font-bold">{aum}</p>
+                        {/* <p className="text-white text-xl font-bold">{aum}</p> */}
+                        <p className="text-white text-xl font-bold">N/A</p>
                       </div>
                       <div className="bg-black/40 rounded-xl p-4 border border-white/10">
                         <p className="text-gray-400 text-sm mb-1">
                           Volume (24h)
                         </p>
-                        <p className="text-white text-xl font-bold">{volume}</p>
+                        <p className="text-white text-xl font-bold">N/A</p>
+                        {/* <p className="text-white text-xl font-bold">{volume}</p> */}
                       </div>
                       <div className="bg-black/40 rounded-xl p-4 border border-white/10">
                         <p className="text-gray-400 text-sm mb-1">NAV Price</p>
                         <div className="flex items-center">
                           <p className="text-white text-xl font-bold mr-2">
+                            N/A
+                          </p>
+                          {/* <p className="text-white text-xl font-bold mr-2">
                             {tokenPrice}
                           </p>
                           <span
@@ -678,7 +693,7 @@ export default function ETFPage() {
                             }`}
                           >
                             {priceChange}
-                          </span>
+                          </span> */}
                         </div>
                       </div>
                     </div>
@@ -732,7 +747,7 @@ export default function ETFPage() {
                                 {asset.change24h}
                               </td>
                               <td className="px-3 py-3 text-gray-300">
-                                {asset.balance}
+                                {scBalance[asset.runeId]}
                               </td>
                             </tr>
                           ))}
