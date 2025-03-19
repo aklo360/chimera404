@@ -32,7 +32,7 @@ const gradientAnimation = {
 const etfAssets = [
   {
     name: "DOG",
-    currentWeight: "30",
+    currentWeight: "30%",
     targetWeight: "30%",
     price: "$0.00000142",
     change24h: "+5.2%",
@@ -42,7 +42,7 @@ const etfAssets = [
   },
   {
     name: "ORDI",
-    currentWeight: "20",
+    currentWeight: "20%",
     targetWeight: "20%",
     price: "$42.87",
     change24h: "-2.1%",
@@ -52,7 +52,7 @@ const etfAssets = [
   },
   {
     name: "SATS",
-    currentWeight: "15",
+    currentWeight: "15%",
     targetWeight: "15%",
     price: "$0.0324",
     change24h: "+1.7%",
@@ -62,7 +62,7 @@ const etfAssets = [
   },
   {
     name: "QUANTUM CATS",
-    currentWeight: "10",
+    currentWeight: "10%",
     targetWeight: "10%",
     price: "$0.00214",
     change24h: "+8.3%",
@@ -72,7 +72,7 @@ const etfAssets = [
   },
   {
     name: "NODEMONKE",
-    currentWeight: "7",
+    currentWeight: "7%",
     targetWeight: "7%",
     price: "$0.00098",
     change24h: "+3.4%",
@@ -82,7 +82,7 @@ const etfAssets = [
   },
   {
     name: "OMB",
-    currentWeight: "5",
+    currentWeight: "5%",
     targetWeight: "5%",
     price: "$0.00076",
     change24h: "-1.2%",
@@ -92,7 +92,7 @@ const etfAssets = [
   },
   {
     name: "BTC PUPS",
-    currentWeight: "4",
+    currentWeight: "4%",
     targetWeight: "4%",
     price: "$0.00068",
     change24h: "+12.4%",
@@ -102,7 +102,7 @@ const etfAssets = [
   },
   {
     name: "MIM",
-    currentWeight: "3",
+    currentWeight: "3%",
     targetWeight: "3%",
     price: "$0.00042",
     change24h: "-0.8%",
@@ -112,7 +112,7 @@ const etfAssets = [
   },
   {
     name: "RSIC",
-    currentWeight: "3",
+    currentWeight: "3%",
     targetWeight: "3%",
     price: "$0.00035",
     change24h: "+2.1%",
@@ -122,7 +122,7 @@ const etfAssets = [
   },
   {
     name: "PUPS",
-    currentWeight: "3",
+    currentWeight: "3%",
     targetWeight: "3%",
     price: "$0.00028",
     change24h: "+15.7%",
